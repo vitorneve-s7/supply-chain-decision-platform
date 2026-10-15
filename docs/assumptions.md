@@ -30,3 +30,8 @@
 
 - distribution centre to store: 3 to 7 days, random within that range
 - why: realistic for a regional DC; the variability tests safety stock
+
+7. data notes
+
+- scope after cleaning: 823 items, X rows, 2011-01-29 to 2016-05-22.
+- days before each item's first price were dropped (not launched yet).
