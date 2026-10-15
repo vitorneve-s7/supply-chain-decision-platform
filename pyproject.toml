@@ -1,0 +1,38 @@
+[project]
+name = "supply-chain-decision-platform"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "vitorneve-s7", email = "vitor.neves200499@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "ipykernel>=7.4.0",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.11.2",
+    "numpy>=2.4.6",
+    "pandas>=3.0.6",
+    "plotly>=7.1.0",
+    "pyarrow>=26.0.0",
+]
+
+[project.scripts]
+supply-chain-decision-platform = "supply_chain_decision_platform:main"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.7.0",
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
