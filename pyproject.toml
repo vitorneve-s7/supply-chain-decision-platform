@@ -1,7 +1,7 @@
 [project]
 name = "supply-chain-decision-platform"
 version = "0.1.0"
-description = "Add your description here"
+description = "Retail demand forecasting, inventory optimisation and supply chain simulation on M5"
 readme = "README.md"
 authors = [
     { name = "vitorneve-s7", email = "vitor.neves200499@gmail.com" }

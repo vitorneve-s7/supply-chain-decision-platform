@@ -39,3 +39,5 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 
 - scope after cleaning: 823 items, 1,280,182 rows (317,261 pre-launch rows dropped), 2011-01-29 to 2016-05-22.
 - days before each item's first price were dropped (not launched yet).
+- 25 December: store closed every year (zero sales); treated separately, not as demand.
+- zero-sales runs: 247 of 295 items selling 2+ units/day have runs of 14+ zero days (654 runs of 14–60 days, 308 runs over 60 days). Treated as unavailability (censored demand), not zero demand. Flagged with an `available` column in Phase 1.
