@@ -33,5 +33,5 @@
 
 7. data notes
 
-- scope after cleaning: 823 items, X rows, 2011-01-29 to 2016-05-22.
+- scope after cleaning: 823 items, 1,280,182 (dropped 317,261 pre-launch rows) rows, 2011-01-29 to 2016-05-22.
 - days before each item's first price were dropped (not launched yet).
