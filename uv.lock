@@ -2759,7 +2759,7 @@ wheels = [
 [[package]]
 name = "supply-chain-decision-platform"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "ipykernel" },
     { name = "jupyter" },
