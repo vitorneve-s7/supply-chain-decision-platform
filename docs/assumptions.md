@@ -39,5 +39,17 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 
 - scope after cleaning: 823 items, 1,280,182 rows (317,261 pre-launch rows dropped), 2011-01-29 to 2016-05-22.
 - days before each item's first price were dropped (not launched yet).
-- 25 December: store closed every year (zero sales); treated separately, not as demand.
-- zero-sales runs: 247 of 295 items selling 2+ units/day have runs of 14+ zero days (654 runs of 14–60 days, 308 runs over 60 days). Treated as unavailability (censored demand), not zero demand. Flagged with an `available` column in Phase 1.
+- 25 December: store closed every year. Flagged in `closed` (3,377 item-days); sales kept as 0 in the
+  data, replaced by the average of the neighbouring days for training, never scored.
+- unavailability: for items selling 2+ units/day on average, runs of 14+ consecutive zero-sales days are
+  flagged `available = False` (59,104 item-days, 4.6% of all, 247 items). These days are excluded from
+  scoring and from the demand classification; the true demand on them is unknown.
+
+## 8. Backtest design
+
+- horizon: 28 days
+- final test window: 2016-04-25 to 2016-05-22, used once at the end of Phase 1
+- validation: 4 rolling windows of 28 days, 2016-01-04 to 2016-04-24, for comparing and tuning models
+- scoring skips days with `closed = True` or `available = False`
+- demand classes (Syntetos-Boylan, ADI 1.32 / CV² 0.49) are computed on data before 2016-04-25,
+  available days only: 361 intermittent, 184 lumpy, 174 smooth, 104 erratic

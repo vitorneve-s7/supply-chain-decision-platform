@@ -8,6 +8,8 @@ import pandas as pd
 STORE = "CA_1"
 DEPT = "FOODS_3"
 N_DAYS = 1941  # sales_train_evaluation.csv has columns d_1 ... d_1941
+MIN_RATE_FOR_STOCKOUT = 2.0  # avg units/day above which an item "always sells"
+MIN_ZERO_RUN = 14  # consecutive zero days that count as unavailable
 
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw"
@@ -63,6 +65,33 @@ def drop_before_launch(long: pd.DataFrame) -> pd.DataFrame:
     return long[long["date"] >= first_priced_day]
 
 
+def add_closed(df: pd.DataFrame) -> pd.DataFrame:
+    """Marca o dia de Natal, em que as lojas estão fechadas."""
+    df["closed"] = (df["date"].dt.month == 12) & (df["date"].dt.day == 25)
+    return df
+
+
+def add_available(df: pd.DataFrame) -> pd.DataFrame:
+    """Marca como indisponíveis as sequências longas de zeros em produtos que vendem bem."""
+    key = ["item_id", "store_id"]
+    df = df.sort_values([*key, "date"]).reset_index(drop=True)
+
+    # 1. Produtos que vendem em média 2+ unidades por dia (sem contar o Natal)
+    rate = df[~df["closed"]].groupby(key, observed=True)["sales"].mean()
+    fast = rate[rate >= MIN_RATE_FOR_STOCKOUT].index
+    is_fast = pd.MultiIndex.from_frame(df[key]).isin(fast)
+
+    # 2. Comprimento de cada sequência de zeros
+    zero = df["sales"].eq(0)
+    new_item = df["item_id"].ne(df["item_id"].shift()) | df["store_id"].ne(df["store_id"].shift())
+    run_id = (zero.ne(zero.shift()) | new_item).cumsum()
+    run_len = zero.groupby(run_id).transform("size")
+
+    # 3. Indisponível = produto rápido + zero + sequência de 14 dias ou mais
+    df["available"] = ~(is_fast & zero & (run_len >= MIN_ZERO_RUN))
+    return df
+
+
 def tidy(long: pd.DataFrame) -> pd.DataFrame:
     """Drop unused columns, shrink data types and sort."""
     long = long.drop(columns=["id", "state_id", "d"])
@@ -107,6 +136,8 @@ def main() -> None:
     rows_before = len(long)
     long = drop_before_launch(long)
     long = tidy(long)
+    long = add_closed(long)
+    long = add_available(long)
 
     check(long, wide_total)
 
@@ -119,6 +150,12 @@ def main() -> None:
     print(f"Rows: {len(long):,} (dropped {rows_before - len(long):,} pre-launch rows)")
     print(f"Dates: {long['date'].min().date()} to {long['date'].max().date()}")
     print(f"Total units sold: {long['sales'].astype('int64').sum():,}")
+    off = ~long["available"]
+    print(f"Christmas item-days (closed): {long['closed'].sum():,}")
+    print(
+        f"Unavailable item-days: {off.sum():,} ({off.mean():.1%}), "
+        f"items affected: {long.loc[off, 'item_id'].nunique()}"
+    )
 
 
 if __name__ == "__main__":
