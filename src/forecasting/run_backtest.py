@@ -13,7 +13,11 @@ from src.forecasting.data import to_nixtla
 ROOT = Path(__file__).resolve().parents[2]
 PROCESSED = ROOT / "data" / "processed"
 RESULTS = ROOT / "results"
-GROUPS = {"benchmarks": models.BENCHMARKS}
+GROUPS = {
+    "benchmarks": {"models": models.BENCHMARKS},
+    "stats": {"models": models.STATS, "level": [80, 90]},
+    "arima": {"models": models.ARIMA, "level": [80, 90], "history_days": 730},
+}
 
 
 def update_summary(per_item: pd.DataFrame) -> pd.DataFrame:
@@ -35,7 +39,10 @@ def main(group: str) -> None:
     train = train_part(to_nixtla(df))
 
     start = time.time()
-    results = run_statsforecast(GROUPS[group], train)
+    config = GROUPS[group]
+    results = run_statsforecast(
+        config["models"], train, config.get("level"), config.get("history_days")
+    )
     print(f"{group}: {results['unique_id'].nunique()} items in {time.time() - start:.0f} s")
 
     results.to_parquet(RESULTS / f"backtest_{group}.parquet", index=False)

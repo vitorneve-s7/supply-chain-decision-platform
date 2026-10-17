@@ -23,14 +23,27 @@ def train_part(nx: pd.DataFrame) -> pd.DataFrame:
     return nx[keep].reset_index(drop=True)
 
 
-def run_statsforecast(models: list, train: pd.DataFrame) -> pd.DataFrame:
-    """Cross-validate statsforecast models on the validation windows; return the long format."""
+def run_statsforecast(
+    models: list,
+    train: pd.DataFrame,
+    level: list[int] | None = None,
+    history_days: int | None = None,
+) -> pd.DataFrame:
+    """Cross-validate statsforecast models on the validation windows; return the long format.
+
+    level: interval levels to ask for, e.g. [80, 90] gives the 90th and 95th percentiles.
+    history_days: train on the last N days before the test window only (for slow models).
+    """
+    data = train[["unique_id", "ds", "y"]]
+    if history_days is not None:
+        data = data[data["ds"] >= TEST_START - pd.Timedelta(days=history_days)]
     sf = StatsForecast(models=models, freq="D", n_jobs=-1)
     cv = sf.cross_validation(
-        df=train[["unique_id", "ds", "y"]],
+        df=data,
         h=HORIZON,
         step_size=HORIZON,
         n_windows=N_VAL_WINDOWS,
+        level=level,
     )
     return to_long(cv, model_names=[repr(m) for m in models])
 

@@ -56,3 +56,6 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - items need 28+ days of history before 2016-01-04 to be backtested: 821 of 823 (FOODS_3_296 and
   FOODS_3_595 launched later); 4 more have no available day in the validation windows, so 817 are scored
 - benchmark bar: WindowAverage(28) has the best RMSSE in every demand class (0.760 overall)
+- statistical models: AutoARIMA trains on the last 2 years only (from 2014-04-26) for speed; TSB uses
+  alpha_d = alpha_p = 0.1; Croston, TSB, ADIDA and IMAPA get conformal intervals (2 windows of 28 days)
+- best statistical model: AutoETS, RMSSE 0.743 overall, best in every demand class; AutoARIMA 0.750
