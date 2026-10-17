@@ -32,6 +32,20 @@ def test_no_test_data_in_train(toy):
     assert train_part(toy)["ds"].max() < TEST_START
 
 
+def test_late_launch_is_left_out(toy):
+    late = pd.DataFrame(
+        {
+            "unique_id": "C_CA_1",
+            "ds": pd.date_range(VAL_START, "2016-05-22", freq="D"),
+            "y": 1.0,
+            "available": True,
+            "closed": False,
+        }
+    )
+    train = train_part(pd.concat([toy, late], ignore_index=True))
+    assert set(train["unique_id"]) == {"A_CA_1", "B_CA_1"}
+
+
 def test_windows_and_no_leakage(toy):
     res = run_statsforecast([Naive()], train_part(toy))
     assert res["cutoff"].nunique() == N_VAL_WINDOWS

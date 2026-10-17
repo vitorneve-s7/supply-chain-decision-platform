@@ -53,3 +53,6 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - scoring skips days with `closed = True` or `available = False`
 - demand classes (Syntetos-Boylan, ADI 1.32 / CV² 0.49) are computed on data before 2016-04-25,
   available days only: 361 intermittent, 184 lumpy, 174 smooth, 104 erratic
+- items need 28+ days of history before 2016-01-04 to be backtested: 821 of 823 (FOODS_3_296 and
+  FOODS_3_595 launched later); 4 more have no available day in the validation windows, so 817 are scored
+- benchmark bar: WindowAverage(28) has the best RMSSE in every demand class (0.760 overall)

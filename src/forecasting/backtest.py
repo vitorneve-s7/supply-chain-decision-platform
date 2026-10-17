@@ -8,12 +8,19 @@ from src.forecasting import metrics
 from src.forecasting.config import HORIZON, N_VAL_WINDOWS, TEST_START
 
 VAL_START = TEST_START - pd.Timedelta(days=HORIZON * N_VAL_WINDOWS)  # 2016-01-04
+MIN_HISTORY = 28  # days of history an item needs before VAL_START to be backtested
 QUANTILES = {"q90": 0.90, "q95": 0.95}
 
 
 def train_part(nx: pd.DataFrame) -> pd.DataFrame:
-    """Everything before the final test window. The test window is never touched here."""
-    return nx[nx["ds"] < TEST_START].reset_index(drop=True)
+    """Everything before the final test window, for items with enough history to backtest.
+
+    The test window is never touched here. Items launched less than MIN_HISTORY days before
+    VAL_START have nothing to learn from in the first window, so they are left out.
+    """
+    first_day = nx.groupby("unique_id")["ds"].transform("min")
+    keep = (nx["ds"] < TEST_START) & (first_day <= VAL_START - pd.Timedelta(days=MIN_HISTORY))
+    return nx[keep].reset_index(drop=True)
 
 
 def run_statsforecast(models: list, train: pd.DataFrame) -> pd.DataFrame:
