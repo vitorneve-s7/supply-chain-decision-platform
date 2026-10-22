@@ -130,3 +130,8 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   if the inventory position is above s, no order; otherwise order up to S = s + Q, with Q the
   economic order quantity sqrt(2 D K / h), D = mean daily q50 x 365, K = 1 per order line,
   h = 25% of price per year
+- costs per policy are totals over the 126 scored days (2016-01-18 to 2016-05-22): holding = daily
+  stock value x 25% / 365; ordering = 1 per order line; lost sales = 30% of price per lost unit.
+  Result: lost sales and ordering dominate, holding is small (25%/year over 4 months). Total cost:
+  Baseline 36,166; (R, S) normal 36,738; (R, S) quantile with tuned z 24,672 (-32%); (s, S) with
+  tuned z 17,048 (-53%). On the test window alone: 10,463 / 8,268 / 5,847 / 4,162.

@@ -35,6 +35,12 @@ def order_up_to_normal(state: ReviewState, service: float = 0.95) -> int:
     return order_up_to(state, level)
 
 
+def order_up_to_quantile_sum(state: ReviewState) -> int:
+    """(R, S) with S = the sum of the daily q95 forecasts over the protection period."""
+    level = state.forecast["q95"].head(PROTECTION).sum()
+    return order_up_to(state, level)
+
+
 def quantile_level(
     state: ReviewState, service: float = 0.95, z_by_class: dict[str, float] | None = None
 ) -> float:

@@ -33,6 +33,10 @@ def test_scorecard_on_a_hand_made_replay():
     assert card.loc["all", "cycle_service"] == pytest.approx(0.75)  # 3 of 4 item-weeks
     assert card.loc["smooth", "days_of_stock"] == pytest.approx(0.5)  # 5 units / 10 per day
     assert card.loc["all", "stock_value"] == pytest.approx(10.0)  # 5 units x price 2, per day
+    assert card.loc["smooth", "holding_cost"] == pytest.approx(10.0 * 0.25 / 365 * 14)
+    assert card.loc["lumpy", "lost_sales_cost"] == pytest.approx(2 * 1.0 * 0.30)  # 2 lost x price 1
+    assert card.loc["all", "ordering_cost"] == 0
+    assert card.loc["all", "total_cost"] == pytest.approx(10.0 * 0.25 / 365 * 14 + 0.6)
 
 
 def test_scorecard_can_score_a_date_range():
