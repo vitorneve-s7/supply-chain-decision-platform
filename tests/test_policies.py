@@ -9,6 +9,7 @@ from src.inventory.policies import (
     order_up_to_quantile_sum,
     reorder_point,
     replenish_last_week,
+    weeks_of_cover,
 )
 from src.inventory.simulate import ReviewState
 
@@ -77,3 +78,8 @@ def test_reorder_point_orders_a_batch_up_to_s_plus_q():
     # Q = sqrt(2 * 730 * 1 / 0.5) = 54.0, so S = 85.4 and the order is ceil(85.4 - 15) = 71
     state = make_state([1] * 56, on_hand=10, on_order=5, q50=2.0, q95=2.0 + norm.ppf(0.95))
     assert reorder_point(state) == 71
+
+
+def test_weeks_of_cover_orders_up_to_k_weeks_of_sales():
+    state = make_state([2] * 7, on_hand=10, on_order=4)  # 14 sold last week
+    assert weeks_of_cover(state, weeks=3.0) == 28  # up to 42, minus 14

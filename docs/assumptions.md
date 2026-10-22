@@ -135,3 +135,12 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   Result: lost sales and ordering dominate, holding is small (25%/year over 4 months). Total cost:
   Baseline 36,166; (R, S) normal 36,738; (R, S) quantile with tuned z 24,672 (-32%); (s, S) with
   tuned z 17,048 (-53%). On the test window alone: 10,463 / 8,268 / 5,847 / 4,162.
+- service sweep: each policy at several settings gives one curve of stock value against cycle service.
+  Forecast policies: service 80%, 90%, 95%, 98%, 99%, 99.5% (one z for all classes). Baseline: order up
+  to k weeks of last week's sales, k = 1.5 to 5 ("weeks of cover"); ordering k x last week's sales was
+  dropped because for k > 1 stock piles up without limit. Policies are compared at equal service by
+  interpolating along the curves.
+- cost sensitivity: one assumption changed at a time (holding 15% / 35%, lost-sales penalty 10% / 50%,
+  order cost 20); (s, S) is re-simulated when holding or order cost change, since they set its batch
+  size. Lead-time sensitivity is left to Phase 3 (the digital twin), where lead-time disruptions are
+  modelled directly.

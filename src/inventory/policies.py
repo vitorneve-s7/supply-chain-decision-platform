@@ -20,6 +20,11 @@ def replenish_last_week(state: ReviewState, factor: float = 1.0) -> int:
     return int(np.ceil(factor * state.past_sales[-7:].sum()))
 
 
+def weeks_of_cover(state: ReviewState, weeks: float = 3.0) -> int:
+    """Baseline with a dial: order up to `weeks` times last week's sales."""
+    return order_up_to(state, weeks * state.past_sales[-7:].sum())
+
+
 def order_up_to(state: ReviewState, level: float) -> int:
     """Order the gap between the order-up-to level and the inventory position."""
     position = state.on_hand + state.on_order
