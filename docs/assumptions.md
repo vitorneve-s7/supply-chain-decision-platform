@@ -113,3 +113,9 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - lost-sales penalty: 30% of price per lost unit (lost margin)
 - ordering cost: 1 per order line (per item per order)
 - orders are whole units; no pack sizes or minimum order quantities (not in M5)
+- cycle service level: share of item-weeks (Monday to Sunday) with no lost sale; fill rate: units
+  sold / units demanded; days of stock: total end-of-day stock / total demand
+- (R, S) textbook policy: protection period 12 days (review 7 + mean lead time 5); mean daily demand
+  = average Hybrid q50 over those 12 days; sigma = standard deviation of observed daily sales over
+  the last 56 days; S = 12 mu + z sqrt(12 sigma^2 + mu^2 Var(L)), Var(L) = 2 for a uniform 3-7 day
+  lead time
