@@ -75,3 +75,7 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   Raw conformal intervals were far too narrow (q95 coverage about 0.82); AutoETS needed almost none.
 - after calibration AutoETS has the lowest pinball loss in every class (q95: 0.329 overall vs 0.470
   for LightGBM), even where LightGBM has the better point forecast (smooth, erratic)
+- model choice (validation windows only): Hybrid = point forecast from LightGBM for smooth and
+  erratic items and from AutoETS for intermittent and lumpy items; q90/q95 = that point plus the
+  calibrated AutoETS margin (q - mean). Validation: RMSSE 0.734 vs 0.743 (AutoETS) and 0.745
+  (LightGBM); pinball q95 0.323 vs 0.329 and 0.470; coverage 0.903 / 0.952.
