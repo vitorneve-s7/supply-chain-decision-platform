@@ -144,3 +144,17 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   order cost 20); (s, S) is re-simulated when holding or order cost change, since they set its batch
   size. Lead-time sensitivity is left to Phase 3 (the digital twin), where lead-time disruptions are
   modelled directly.
+- sweep result, stock at equal service (interpolated, base costs): for 90% cycle service the
+  (R, S) quantile policy needs 48,177 of stock vs 75,677 for the baseline (-36%) and 52,816 for
+  (R, S) normal (-9%). For 95% it needs 64,170; the baseline never reaches 95% (it levels off at 94.0%
+  with 175,954, because an item that sells nothing for a week is never reordered) and (R, S) normal
+  tops out at 90.7%.
+- sweep result, lowest total cost per policy (base costs): (s, S) 17,430 at 98.6% service; baseline
+  23,737 (3 weeks of cover, 91.0%); (R, S) quantile 24,970 (96.5%); (R, S) normal 30,702 (90.7%).
+  (s, S) is cheapest in every cost scenario; with order cost 20 it costs 43,838 against 148,548
+  for the baseline and 266,536 for weekly (R, S). The forecast policies' cost keeps falling up to
+  the highest service tested (99.5%): with lost sales ~60x dearer than a week of holding, the
+  economic service target is well above the 95% chosen in the scoping decisions.
+- honest negative: on total cost the weekly (R, S) quantile policy does not beat the best
+  baseline setting (24,970 vs 23,737), because holding stock is cheap; its gain is capital, not
+  cost. The cost win comes from (s, S), which cuts orders by 72%.
