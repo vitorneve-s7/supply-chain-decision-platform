@@ -171,9 +171,17 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   covers 14 days (review 7 + mean supplier lead time 7) with z = 1.65 from the forecast quantiles.
   The DC sees the forecasts, not the store's orders in advance.
 - supplier -> DC lead time: uniform 5 to 9 days
-- capacities on normal days: the DC ships up to 150% of average daily store demand; the supplier
-  delivers up to 150% of average weekly demand. The DC ships its backlog oldest first, up to its
-  stock and capacity; what it cannot ship waits.
+- capacities on normal days: the DC and the supplier can each ship up to 150% of average weekly
+  store demand in any 7 consecutive days (a rolling weekly limit, so a normal Monday order ships the
+  same day). Changed from a daily limit of 150% of average daily demand: with one weekly order, a
+  daily limit took 4-5 days to ship each order, which added about 2 days of lead time on normal
+  days. The DC ships its backlog oldest first, up to its stock and capacity; when capacity binds,
+  every item gets the same share; what cannot ship waits.
+- event order within a day: trucks arrive overnight (at day - 0.5 in SimPy); then the store orders
+  (Monday), the store sells, the DC ships, the DC orders (Monday), the supplier ships. A fixed order,
+  so results never depend on SimPy's tie-breaking.
+- validation: with an unlimited DC, the twin reproduces the Phase 2 replay exactly (weeks of cover
+  and (s, S) checked on all 821 items: every KPI identical)
 - starting stock: store 14 days of demand (as in Phase 2); DC 14 days of store demand
 - demand: the same 2016 demand as Phase 2 (observed, imputed on stockout days) in every replication,
   so the twin does not favour the forecast-based policies
