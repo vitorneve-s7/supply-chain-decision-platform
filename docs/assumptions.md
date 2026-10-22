@@ -158,3 +158,33 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - honest negative: on total cost the weekly (R, S) quantile policy does not beat the best
   baseline setting (24,970 vs 23,737), because holding stock is cheap; its gain is capital, not
   cost. The cost win comes from (s, S), which cuts orders by 72%.
+
+## 10. Digital twin
+
+- network: one supplier -> one distribution centre (DC) -> store CA_1, all 821 backtested items;
+  simulated in SimPy, all items moving together as arrays (one process per stage, not per item)
+- store side unchanged from Phase 2: weekly review on Monday, the same four policies at their best
+  Phase 2 settings (weeks of cover k = 3; (R, S) normal at 95%; (R, S) quantile and (s, S) with the
+  tuned z per class), DC -> store lead time uniform 3 to 7 days. The store's "on order" = DC backlog
+  (ordered, not yet shipped) + units in transit.
+- DC policy: weekly (R, S) on the store's forecast, reviewed every Monday after the store orders;
+  covers 14 days (review 7 + mean supplier lead time 7) with z = 1.65 from the forecast quantiles.
+  The DC sees the forecasts, not the store's orders in advance.
+- supplier -> DC lead time: uniform 5 to 9 days
+- capacities on normal days: the DC ships up to 150% of average daily store demand; the supplier
+  delivers up to 150% of average weekly demand. The DC ships its backlog oldest first, up to its
+  stock and capacity; what it cannot ship waits.
+- starting stock: store 14 days of demand (as in Phase 2); DC 14 days of store demand
+- demand: the same 2016 demand as Phase 2 (observed, imputed on stockout days) in every replication,
+  so the twin does not favour the forecast-based policies
+- randomness: lead times on both legs and the disruption start date, drawn per replication
+- replications: 20 per policy and scenario, seeds 0 to 19, the same seeds for every policy (common
+  random numbers); results are reported relative to scenario S0 with the same seed
+- disruption start: random between 2016-02-08 and 2016-04-04, leaving at least 7 weeks to recover
+- scenarios: S0 normal; S1 supplier ships nothing for 14 days; S2 store demand +50% on every item for
+  10 days, not known to the policies; S3 DC shipping capacity cut to 50% for 21 days; S4 DC -> store
+  lead time 6 to 14 days for 28 days while policies still plan with 3 to 7
+- costs: Phase 2 costs (holding 25% of price per year, ordering 1 per line, lost sales 30% of price)
+  plus DC holding at the same 25% per year
+- speed: all 821 items; if one run takes over a minute, a sample of 200 items stratified by demand
+  class is used for the scenario runs

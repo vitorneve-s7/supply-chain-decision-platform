@@ -18,6 +18,7 @@ dependencies = [
     "plotly>=7.1.0",
     "pyarrow>=26.0.0",
     "scikit-learn>=1.9.1",
+    "simpy>=4.1.2",
     "statsforecast>=2.0.1",
     "utilsforecast>=0.2.17",
 ]
