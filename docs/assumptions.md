@@ -89,3 +89,26 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   on all data up to 2016-05-22, for all 823 items; future prices, SNAP days and events come from
   the raw calendar and price files; calibration factors from validation applied unchanged.
   Forecasts are precomputed into results/future_forecast.parquet, and forecast() reads that file.
+
+## 9. Inventory replay
+
+- period: 140 days, 2016-01-04 to 2016-05-22 (the 4 validation windows plus the test window); every
+  forecast in it is out of sample
+- forecasts: the Hybrid (q50, q90, q95) from the calibrated backtest for the validation windows and
+  from test_forecasts.parquet for the test window; each order uses the forecast from the latest
+  28-day cutoff. When an order's protection period reaches past that forecast, the last 7 forecast
+  days are repeated, which keeps the weekly pattern.
+- items: the 821 backtested items
+- review: every Monday (R = 7 days)
+- lead time: random, uniform 3 to 7 days, drawn once per item and order date with a fixed seed, so
+  every policy sees the same deliveries; policies plan with the mean (5 days) and its variance
+- unmet demand is lost, not backordered
+- demand: observed sales on available days; on days flagged available = False, the item's average
+  sales over its last 28 available days (true demand there is unknown, and zero would flatter every
+  policy)
+- starting stock: 14 days of average demand per item, nothing in transit; the first 14 days are a
+  warm-up and are not scored
+- holding cost: 25% of price per year, charged daily on end-of-day stock
+- lost-sales penalty: 30% of price per lost unit (lost margin)
+- ordering cost: 1 per order line (per item per order)
+- orders are whole units; no pack sizes or minimum order quantities (not in M5)
