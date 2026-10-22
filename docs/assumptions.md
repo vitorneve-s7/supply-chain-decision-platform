@@ -119,3 +119,10 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   = average Hybrid q50 over those 12 days; sigma = standard deviation of observed daily sales over
   the last 56 days; S = 12 mu + z sqrt(12 sigma^2 + mu^2 Var(L)), Var(L) = 2 for a uniform 3-7 day
   lead time
+- quantile policies, same 12-day protection period: E1 S = sum of daily q95; E2 S = sum of q50 +
+  z sqrt(sum of sigma_t^2 + mu^2 Var(L)), with sigma_t = (q95_t - q50_t) / 1.645 from the
+  calibrated forecast
+- z tuned per demand class (E2 tuned): the smallest z reaching 95% cycle service on the replay up to
+  2016-04-24, found by bisection on [1, 4] in 7 steps; the test window (2016-04-25 to 2016-05-22)
+  checks it. Tuned z: smooth 3.11, erratic 2.80, lumpy 2.12, intermittent 1.66. Smooth and erratic
+  need large z because the Hybrid point forecast is biased low on them (-8% to -17%).

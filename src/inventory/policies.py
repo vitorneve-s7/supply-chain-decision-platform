@@ -31,3 +31,24 @@ def order_up_to_normal(state: ReviewState, service: float = 0.95) -> int:
     z = norm.ppf(service)
     level = mu * PROTECTION + z * np.sqrt(PROTECTION * sigma**2 + mu**2 * LEAD_VAR)
     return order_up_to(state, level)
+
+
+def order_up_to_quantile_sum(state: ReviewState) -> int:
+    """(R, S) with S = the sum of the daily q95 forecasts over the protection period."""
+    level = state.forecast["q95"].head(PROTECTION).sum()
+    return order_up_to(state, level)
+
+
+def order_up_to_quantile(
+    state: ReviewState, service: float = 0.95, z_by_class: dict[str, float] | None = None
+) -> int:
+    """(R, S) with the spread read from the calibrated quantiles, added up like variances.
+
+    z_by_class, if given, replaces the z of `service` with one tuned per demand class.
+    """
+    fc = state.forecast.head(PROTECTION)
+    sigma_t = (fc["q95"] - fc["q50"]) / norm.ppf(0.95)  # daily spread from the forecast
+    mu = fc["q50"].mean()
+    z = z_by_class[state.demand_class] if z_by_class else norm.ppf(service)
+    level = fc["q50"].sum() + z * np.sqrt((sigma_t**2).sum() + mu**2 * LEAD_VAR)
+    return order_up_to(state, level)

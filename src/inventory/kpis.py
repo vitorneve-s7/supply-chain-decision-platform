@@ -5,9 +5,14 @@ import pandas as pd
 WARMUP_END = pd.Timestamp("2016-01-18")  # the first 14 replay days are not scored
 
 
-def scorecard(records: pd.DataFrame) -> pd.DataFrame:
-    """One row per demand class plus 'all': fill rate, cycle service level, stock and orders."""
-    df = records[records["ds"] >= WARMUP_END].copy()
+def scorecard(
+    records: pd.DataFrame, start: pd.Timestamp = WARMUP_END, end: pd.Timestamp | None = None
+) -> pd.DataFrame:
+    """One row per demand class plus 'all': fill rate, cycle service level, stock and orders.
+
+    Only days from `start` to `end` (inclusive) are scored; by default, all days after the warm-up.
+    """
+    df = records[(records["ds"] >= start) & (records["ds"] <= (end or records["ds"].max()))].copy()
     df["week"] = df["ds"].dt.to_period("W-SUN")
     df["stock_value"] = df["end_stock"] * df["sell_price"]
 

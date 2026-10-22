@@ -33,3 +33,24 @@ def test_scorecard_on_a_hand_made_replay():
     assert card.loc["all", "cycle_service"] == pytest.approx(0.75)  # 3 of 4 item-weeks
     assert card.loc["smooth", "days_of_stock"] == pytest.approx(0.5)  # 5 units / 10 per day
     assert card.loc["all", "stock_value"] == pytest.approx(10.0)  # 5 units x price 2, per day
+
+
+def test_scorecard_can_score_a_date_range():
+    days = pd.date_range("2016-01-18", periods=14)
+    records = pd.DataFrame(
+        {
+            "unique_id": "A",
+            "demand_class": "smooth",
+            "sell_price": 1.0,
+            "ds": days,
+            "demand": 2.0,
+            "sales": [0.0] * 7 + [2.0] * 7,  # week 1 all lost, week 2 all sold
+            "lost": [2.0] * 7 + [0.0] * 7,
+            "end_stock": 1.0,
+            "order": 0,
+        }
+    )
+    week2 = scorecard(records, start=days[7])
+    assert week2.loc["all", "fill_rate"] == pytest.approx(1.0)
+    week1 = scorecard(records, start=days[0], end=days[6])
+    assert week1.loc["all", "cycle_service"] == pytest.approx(0.0)
