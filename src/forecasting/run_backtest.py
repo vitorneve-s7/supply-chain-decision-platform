@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
+from mlforecast.utils import PredictionIntervals
 
 from src.forecasting import models
 from src.forecasting.backtest import (
@@ -14,6 +15,7 @@ from src.forecasting.backtest import (
     summarise,
     train_part,
 )
+from src.forecasting.config import HORIZON
 from src.forecasting.data import to_nixtla
 from src.forecasting.ml import make_mlforecast
 
@@ -47,7 +49,12 @@ def main(group: str) -> None:
 
     start = time.time()
     if group == "lightgbm":
-        results = run_mlforecast(make_mlforecast(), train)
+        results = run_mlforecast(
+            make_mlforecast(),
+            train,
+            level=[80, 90],
+            prediction_intervals=PredictionIntervals(n_windows=2, h=HORIZON),
+        )
     else:
         config = GROUPS[group]
         results = run_statsforecast(

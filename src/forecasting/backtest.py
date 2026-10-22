@@ -49,7 +49,12 @@ def run_statsforecast(
     return to_long(cv, model_names=[repr(m) for m in models])
 
 
-def run_mlforecast(fcst, train: pd.DataFrame) -> pd.DataFrame:
+def run_mlforecast(
+    fcst,
+    train: pd.DataFrame,
+    level: list[int] | None = None,
+    prediction_intervals=None,
+) -> pd.DataFrame:
     """Cross-validate an MLForecast object on the validation windows; return the long format."""
     cv = fcst.cross_validation(
         df=add_ml_features(train),
@@ -57,6 +62,8 @@ def run_mlforecast(fcst, train: pd.DataFrame) -> pd.DataFrame:
         step_size=HORIZON,
         n_windows=N_VAL_WINDOWS,
         static_features=[],  # price, SNAP and events change daily
+        level=level,
+        prediction_intervals=prediction_intervals,
     )
     return to_long(cv, model_names=list(fcst.models.keys()))
 

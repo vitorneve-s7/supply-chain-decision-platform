@@ -66,3 +66,12 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   learning rate 0.03 with 800 trees) changed RMSSE by at most 0.002, so the base setting is kept.
 - LightGBM feature importance (gain): rolling means of the last 7 and 28 days carry about 86%;
   price, day of week and lag 7 a few % each; events almost nothing.
+- quantiles: q50 = point forecast; q90 and q95 = upper edge of the 80% and 90% intervals (native for
+  AutoETS and AutoARIMA, conformal with 2 windows for the others and LightGBM), clipped at 0 and
+  kept in order q50 <= q90 <= q95
+- interval calibration: per model and demand class, q = mean + c * (q - mean), with c the smallest
+  factor (0.5 to 5, step 0.05) reaching 90% / 95% coverage on the validation windows. Fitted on
+  windows 1-2, it held on windows 3-4 (q95 coverage 0.93-0.97 except conformal models on erratic).
+  Raw conformal intervals were far too narrow (q95 coverage about 0.82); AutoETS needed almost none.
+- after calibration AutoETS has the lowest pinball loss in every class (q95: 0.329 overall vs 0.470
+  for LightGBM), even where LightGBM has the better point forecast (smooth, erratic)
