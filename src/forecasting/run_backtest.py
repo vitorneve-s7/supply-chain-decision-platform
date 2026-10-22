@@ -7,8 +7,15 @@ from pathlib import Path
 import pandas as pd
 
 from src.forecasting import models
-from src.forecasting.backtest import evaluate, run_statsforecast, summarise, train_part
+from src.forecasting.backtest import (
+    evaluate,
+    run_mlforecast,
+    run_statsforecast,
+    summarise,
+    train_part,
+)
 from src.forecasting.data import to_nixtla
+from src.forecasting.ml import make_mlforecast
 
 ROOT = Path(__file__).resolve().parents[2]
 PROCESSED = ROOT / "data" / "processed"
@@ -39,10 +46,13 @@ def main(group: str) -> None:
     train = train_part(to_nixtla(df))
 
     start = time.time()
-    config = GROUPS[group]
-    results = run_statsforecast(
-        config["models"], train, config.get("level"), config.get("history_days")
-    )
+    if group == "lightgbm":
+        results = run_mlforecast(make_mlforecast(), train)
+    else:
+        config = GROUPS[group]
+        results = run_statsforecast(
+            config["models"], train, config.get("level"), config.get("history_days")
+        )
     print(f"{group}: {results['unique_id'].nunique()} items in {time.time() - start:.0f} s")
 
     results.to_parquet(RESULTS / f"backtest_{group}.parquet", index=False)

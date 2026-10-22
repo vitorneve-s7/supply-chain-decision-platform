@@ -6,6 +6,7 @@ from statsforecast import StatsForecast
 
 from src.forecasting import metrics
 from src.forecasting.config import HORIZON, N_VAL_WINDOWS, TEST_START
+from src.forecasting.ml import add_ml_features
 
 VAL_START = TEST_START - pd.Timedelta(days=HORIZON * N_VAL_WINDOWS)  # 2016-01-04
 MIN_HISTORY = 28  # days of history an item needs before VAL_START to be backtested
@@ -46,6 +47,18 @@ def run_statsforecast(
         level=level,
     )
     return to_long(cv, model_names=[repr(m) for m in models])
+
+
+def run_mlforecast(fcst, train: pd.DataFrame) -> pd.DataFrame:
+    """Cross-validate an MLForecast object on the validation windows; return the long format."""
+    cv = fcst.cross_validation(
+        df=add_ml_features(train),
+        h=HORIZON,
+        step_size=HORIZON,
+        n_windows=N_VAL_WINDOWS,
+        static_features=[],  # price, SNAP and events change daily
+    )
+    return to_long(cv, model_names=list(fcst.models.keys()))
 
 
 def to_long(cv: pd.DataFrame, model_names: list[str]) -> pd.DataFrame:

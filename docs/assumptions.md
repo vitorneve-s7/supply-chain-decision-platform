@@ -59,3 +59,10 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - statistical models: AutoARIMA trains on the last 2 years only (from 2014-04-26) for speed; TSB uses
   alpha_d = alpha_p = 0.1; Croston, TSB, ADIDA and IMAPA get conformal intervals (2 windows of 28 days)
 - best statistical model: AutoETS, RMSSE 0.743 overall, best in every demand class; AutoARIMA 0.750
+- LightGBM (mlforecast, global): lags 7/14/28, rolling means of lag 7 over 7 and 28 days, day of week,
+  day, month, price, price relative to its 28-day average, SNAP, events; tweedie objective, 500 trees,
+  learning rate 0.05, 63 leaves. RMSSE 0.745 overall: best on smooth (0.806) and erratic (0.680);
+  AutoETS stays best on intermittent (0.742) and lumpy (0.683). Light tuning (31 or 127 leaves,
+  learning rate 0.03 with 800 trees) changed RMSSE by at most 0.002, so the base setting is kept.
+- LightGBM feature importance (gain): rolling means of the last 7 and 28 days carry about 86%;
+  price, day of week and lag 7 a few % each; events almost nothing.
