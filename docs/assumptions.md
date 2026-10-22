@@ -85,3 +85,7 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   q90 / q95 coverage 0.901 / 0.952. Bias -9.6% (slight under-forecasting).
 - honest negative: on the test window LightGBM beat AutoETS on lumpy items (RMSSE 0.735 vs 0.745),
   the opposite of validation; the choice made on validation is kept.
+- future forecast (2016-05-23 to 2016-06-19, the 28 days after the data ends): the Hybrid refitted
+  on all data up to 2016-05-22, for all 823 items; future prices, SNAP days and events come from
+  the raw calendar and price files; calibration factors from validation applied unchanged.
+  Forecasts are precomputed into results/future_forecast.parquet, and forecast() reads that file.
