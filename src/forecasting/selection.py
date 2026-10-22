@@ -4,6 +4,15 @@ import pandas as pd
 
 from src.forecasting.calibration import TARGETS
 
+# Chosen on the validation windows (Part G1)
+POINT_MODEL = {
+    "smooth": "LightGBM",
+    "erratic": "LightGBM",
+    "intermittent": "AutoETS",
+    "lumpy": "AutoETS",
+}
+INTERVAL_MODEL = "AutoETS"
+
 
 def build_hybrid(
     results: pd.DataFrame,

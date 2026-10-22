@@ -79,3 +79,9 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   erratic items and from AutoETS for intermittent and lumpy items; q90/q95 = that point plus the
   calibrated AutoETS margin (q - mean). Validation: RMSSE 0.734 vs 0.743 (AutoETS) and 0.745
   (LightGBM); pinball q95 0.323 vs 0.329 and 0.470; coverage 0.903 / 0.952.
+- final test window result (2016-04-25 to 2016-05-22, used once; models refitted on all data up to
+  2016-04-24; calibration factors from validation applied unchanged): 809 items scored. Hybrid RMSSE
+  0.752 vs 0.976 SeasonalNaive (-23%), 0.776 WindowAverage (-3%), 0.760 AutoETS, 0.756 LightGBM;
+  q90 / q95 coverage 0.901 / 0.952. Bias -9.6% (slight under-forecasting).
+- honest negative: on the test window LightGBM beat AutoETS on lumpy items (RMSSE 0.735 vs 0.745),
+  the opposite of validation; the choice made on validation is kept.
