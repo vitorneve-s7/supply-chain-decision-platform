@@ -104,8 +104,9 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   every policy sees the same deliveries; policies plan with the mean (5 days) and its variance
 - unmet demand is lost, not backordered
 - demand: observed sales on available days; on days flagged available = False, the item's average
-  sales over its last 28 available days (true demand there is unknown, and zero would flatter every
-  policy)
+  sales over its last 28 available days, rounded to whole units (true demand there is unknown, and
+  zero would flatter every policy). This affects 4,133 item-days of 79 items in the replay.
+- policies see only observed sales (what the store would see), never the imputed demand
 - starting stock: 14 days of average demand per item, nothing in transit; the first 14 days are a
   warm-up and are not scored
 - holding cost: 25% of price per year, charged daily on end-of-day stock
