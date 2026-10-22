@@ -126,3 +126,7 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   2016-04-24, found by bisection on [1, 4] in 7 steps; the test window (2016-04-25 to 2016-05-22)
   checks it. Tuned z: smooth 3.11, erratic 2.80, lumpy 2.12, intermittent 1.66. Smooth and erratic
   need large z because the Hybrid point forecast is biased low on them (-8% to -17%).
+- (s, S) policy: reviewed every Monday; s = the E2 order-up-to level (with the tuned z per class);
+  if the inventory position is above s, no order; otherwise order up to S = s + Q, with Q the
+  economic order quantity sqrt(2 D K / h), D = mean daily q50 x 365, K = 1 per order line,
+  h = 25% of price per year

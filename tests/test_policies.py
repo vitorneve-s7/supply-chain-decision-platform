@@ -7,6 +7,7 @@ from src.inventory.policies import (
     order_up_to_normal,
     order_up_to_quantile,
     order_up_to_quantile_sum,
+    reorder_point,
     replenish_last_week,
 )
 from src.inventory.simulate import ReviewState
@@ -63,3 +64,16 @@ def test_quantile_uses_the_z_of_the_item_class(z, expected):
     # z = 0: S = 24, order 9; z = 2: S = 24 + 2 * sqrt(20) = 32.9, order 18
     state = make_state([1] * 56, on_hand=10, on_order=5, q50=2.0, q95=2.0 + norm.ppf(0.95))
     assert order_up_to_quantile(state, z_by_class={"smooth": z, "lumpy": 9.9}) == expected
+
+
+def test_reorder_point_skips_when_above_s():
+    # s = 31.4 (as above); position 40 is above it, so no order this week
+    state = make_state([1] * 56, on_hand=40, q50=2.0, q95=2.0 + norm.ppf(0.95))
+    assert reorder_point(state) == 0
+
+
+def test_reorder_point_orders_a_batch_up_to_s_plus_q():
+    # position 15 <= s = 31.4; D = 2 * 365 = 730, h = 0.25 * price 2 = 0.5, K = 1
+    # Q = sqrt(2 * 730 * 1 / 0.5) = 54.0, so S = 85.4 and the order is ceil(85.4 - 15) = 71
+    state = make_state([1] * 56, on_hand=10, on_order=5, q50=2.0, q95=2.0 + norm.ppf(0.95))
+    assert reorder_point(state) == 71
