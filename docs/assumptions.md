@@ -254,3 +254,8 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   Conclusion: at these costs, the robust store policy ((s, S)) is the better insurance; extra DC
   stock for A items would only make sense with a much higher lost-sales cost or very frequent
   outages. Results in results/twin_mitigation.csv.
+- agent entry point: src/simulation/api.py, simulate_scenario(policy, scenario, seed) takes the
+  policy and scenario names as strings and returns a small dict of plain numbers (fill rate, cycle
+  service, lost sales cost, total cost incl. DC holding, store and DC stock value, disruption start
+  date); unknown names raise an error that lists the valid ones, so the Phase 4 agent can correct
+  itself. One call runs all 821 items (about 10-20 s).

@@ -9,8 +9,10 @@ weekly orders, tested in a day-by-day replay of 2016.
   percentile forecasts that cover 95.2% of days.
 - **Inventory:** the same 90% service with **36% less stock** than a weeks-of-cover rule, and
   **27% lower total cost** with a forecast-based (s, S) policy.
+- **Digital twin:** across five disruptions in a supplier → DC → store network, the (s, S) policy
+  loses the least sales in three of them and is the cheapest in all five.
 
-Built with Python, pandas, statsforecast, LightGBM (mlforecast), SciPy and pytest, on the
+Built with Python, pandas, statsforecast, LightGBM (mlforecast), SciPy, SimPy and pytest, on the
 [M5 dataset](https://www.kaggle.com/competitions/m5-forecasting-accuracy).
 
 ## Status
@@ -18,13 +20,43 @@ Built with Python, pandas, statsforecast, LightGBM (mlforecast), SciPy and pytes
 - [x] Phase 0 – Setup and data exploration
 - [x] Phase 1 – Demand forecasting
 - [x] Phase 2 – Inventory policies
-- [ ] Phase 3 – Digital twin
+- [x] Phase 3 – Digital twin
 - [ ] Phase 4 – LLM agent
 
 ## Scope
 
 Store CA_1, department FOODS_3: 823 items, daily sales from 2011-01-29 to 2016-05-22.
 All assumptions are in [docs/assumptions.md](docs/assumptions.md).
+
+## Phase 3 results: digital twin
+
+The four Phase 2 policies run in a SimPy twin of a small network (supplier → distribution centre
+→ store), through five disruption scenarios, 20 runs each with the same random draws for every
+policy. Damage is measured against a normal run with the same draws.
+
+![Extra lost sales per disruption and policy](docs/twin_lost_sales.png)
+
+| Policy | Total cost, normal | Extra lost sales: supplier outage (14 d) | Demand spike +50% (10 d) | DC capacity −50% (21 d) | Lead times ×2 (28 d) |
+| --- | --- | --- | --- | --- | --- |
+| Weeks of cover | 30,621 | **970** | 1,368 | 974 | 3,382 |
+| (R, S) normal | 44,288 | 1,154 | 4,041 | 2,238 | 8,162 |
+| (R, S) quantile | 31,659 | 1,438 | 2,075 | 1,536 | 4,178 |
+| (s, S) | **23,889** | 1,258 | **989** | **893** | **1,913** |
+
+Costs over 126 scored days, store + DC holding; extra lost sales = lost-sales cost above the
+normal run. In the supplier outage the differences are within the 95% intervals.
+
+**What I learned**
+
+- The batches that make (s, S) cheap also make it robust: more stock on the shelf absorbs a shock
+  the forecast did not see. The forecast policies are hit hardest by the unforecast demand spike.
+- But (s, S) pushes problems upstream: the DC is out of stock on 17% of item-days and order
+  variability rises from 0.17 to 0.27 between store and DC (bullwhip).
+- Longer lead times are the worst disruption for every policy, and recovery takes 20–44 days.
+- Extra DC stock for the top 20% of items is not worth it: it pays only above 9.3 two-week
+  supplier outages a year, and it does nothing when the bottleneck is handling capacity.
+
+Full analysis: [notebooks/04_digital_twin.ipynb](notebooks/04_digital_twin.ipynb)
 
 ## Phase 2 results: inventory policies
 
@@ -131,4 +163,9 @@ from src.forecasting.forecast import forecast
 
 forecast("FOODS_3_090", "CA_1", horizon=7)  # date, q50, q90, q95
 ```
-7. Run the tests with `uv run pytest`.
+7. Digital twin (about 30 minutes on 4 cores):
+```
+   uv run python -m src.simulation.run_twin
+   uv run python -m src.simulation.mitigation
+```
+8. Run the tests with `uv run pytest`.
