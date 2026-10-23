@@ -212,3 +212,27 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - single-run check (R, S) quantile, seed 0, disruption from day 83 (2016-03-27), weekly store fill
   rate before -> worst week: S1 96.5% -> 88.0% (in week 3, once the DC runs dry); S2 96.5% -> 90.2%
   (week 2); S3 96.5% -> 90.0% (week 4, while stock piles up in the DC); S4 96.5% -> 83.2% (week 2)
+- comparison runs: 4 store policies x 20 seeds; each (policy, seed) job runs S0 then S1-S4 with the
+  same seed, so damage is measured against the matching normal run: extra lost units, extra
+  lost-sales cost and extra total cost (store + DC holding) = scenario - S0. Jobs run in parallel
+  (one process per core minus one).
+- time to recover: days from the disruption's start to the last day the store's 7-day fill rate is
+  more than 1 point below the S0 run with the same seed (0 if it never is); the 7-day window means a
+  recovery is counted a few days after the shelves are full again
+- results are reported as the mean over 20 seeds with a 95% interval of +/- 1.96 standard errors
+- twin result, extra lost-sales cost vs S0 (mean of 20 seeds +/- 95% interval, all 821 items):
+  S1 supplier outage: weeks of cover 970 +/- 227, (R, S) normal 1,154 +/- 484, (s, S) 1,258 +/- 314,
+  (R, S) quantile 1,438 +/- 406 (intervals overlap: no clear winner; the DC buffer, not the store
+  policy, absorbs most of a 2-week outage). S2 demand spike: (s, S) 989, weeks of cover 1,368,
+  quantile 2,075, normal 4,041. S3 DC capacity cut: (s, S) 893, weeks of cover 974, quantile 1,536,
+  normal 2,238. S4 longer lead times (the most damaging for every policy): (s, S) 1,913, weeks of
+  cover 3,382, quantile 4,178, normal 8,162.
+- twin result, total cost incl. DC holding: (s, S) is cheapest in every scenario (23,889 in S0 to
+  25,290 in S4), then weeks of cover (30,541-33,423), (R, S) quantile (31,659-35,436) and (R, S)
+  normal (44,288-52,214). The extra stock (s, S) carries in its batches works as insurance.
+- twin result, time to recover (days from the start): about 20 for S2, 32-34 for S3, 40-44 for S4
+  and 32-44 for S1, where (s, S) is slowest (44 +/- 4) because its batch cycle takes longer to
+  resynchronise after the DC runs dry
+- honest negative: the policies tuned on forecasts suffer most when demand jumps without warning
+  (S2: normal 4,041 and quantile 2,075 vs 1,368 for weeks of cover), and the (R, S) quantile policy,
+  best on stock in Phase 2, is only third on resilience
