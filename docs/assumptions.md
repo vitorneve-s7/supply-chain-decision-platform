@@ -20,15 +20,17 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 
 ## 4. Service target
 
-- base case: 95% cycle service level
-- sensitivity cases: 90% and 98%
+- base case: 95% cycle service level (the target the per-class z is tuned to in Phase 2)
+- sensitivity: the Phase 2 sweep tests 80% to 99.5%; with these costs, total cost keeps falling up
+  to 99.5%, the highest level tested (section 9)
 
 ## 5. Costs
 
 - holding cost: 25% of item price per year (price x 0.25 / 365 per unit per day)
-- lost-sales penalty: per unit not sold because of a stockout
-- fixed ordering cost: per order placed
-- why: holding cost as a % of price is a standard textbook assumption; the other two are calibrated once the inventory model exists.
+- lost-sales penalty: 30% of the item's price per unit not sold because of a stockout (the lost margin)
+- fixed ordering cost: 1 per order line (per item per order)
+- why: holding cost as a % of price is a standard textbook assumption; M5 has no margins or ordering
+  costs, so the other two were set in Phase 2 and tested in its cost sensitivity (section 9)
 
 ## 6. Lead times
 
@@ -104,7 +106,8 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   every policy sees the same deliveries; policies plan with the mean (5 days) and its variance
 - unmet demand is lost, not backordered
 - demand: observed sales on available days; on days flagged available = False, the item's average
-  sales over its last 28 available days, rounded to whole units (true demand there is unknown, and
+  sales over the available days among its last 28 days (carried forward if there are none), rounded
+  to whole units (true demand there is unknown, and
   zero would flatter every policy). This affects 4,133 item-days of 79 items in the replay.
 - policies see only observed sales (what the store would see), never the imputed demand
 - starting stock: 14 days of average demand per item, nothing in transit; the first 14 days are a
@@ -170,7 +173,8 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - DC policy: weekly (R, S) on the store's forecast, reviewed every Monday after the store orders;
   covers 14 days (review 7 + mean supplier lead time 7) with z = 1.65 from the forecast quantiles.
   The DC sees the forecasts, not the store's orders in advance.
-- supplier -> DC lead time: uniform 5 to 9 days
+- supplier -> DC lead time: uniform 5 to 9 days, one draw per weekly DC order (one truck for all
+  items), set by the run's seed
 - capacities on normal days: the DC and the supplier can each ship up to 150% of average weekly
   store demand in any 7 consecutive days (a rolling weekly limit, so a normal Monday order ships the
   same day). Changed from a daily limit of 150% of average daily demand: with one weekly order, a
@@ -182,7 +186,9 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   so results never depend on SimPy's tie-breaking.
 - validation: with an unlimited DC, the twin reproduces the Phase 2 replay exactly (weeks of cover
   and (s, S) checked on all 821 items: every KPI identical)
-- starting stock: store 14 days of demand (as in Phase 2); DC 14 days of store demand
+- starting stock: store 14 days of demand (as in Phase 2); DC 14 days of store demand. "Average
+  demand" here and in the capacities = each item's mean daily demand over the 56 days before the
+  replay
 - demand: the same 2016 demand as Phase 2 (observed, imputed on stockout days) in every replication,
   so the twin does not favour the forecast-based policies
 - randomness: lead times on both legs and the disruption start date, drawn per replication
@@ -194,8 +200,8 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   lead time 6 to 14 days for 28 days while policies still plan with 3 to 7
 - costs: Phase 2 costs (holding 25% of price per year, ordering 1 per line, lost sales 30% of price)
   plus DC holding at the same 25% per year
-- speed: all 821 items; if one run takes over a minute, a sample of 200 items stratified by demand
-  class is used for the scenario runs
+- speed: every reported run uses all 821 items (about 20 s per run); a 200-item sample stratified by
+  demand class (--sample 200) is kept only as an option for quick checks
 - DC policy as built: S = quantile_level of the store's Hybrid forecast over 14 days at 95% service
   (the Phase 2 formula with protection = 14 and Var(L) = 2 for a uniform 5-9 day supplier lead
   time); order = S - DC position (DC stock + on order from the supplier - still owed to the store)
