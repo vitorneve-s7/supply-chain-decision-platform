@@ -236,3 +236,21 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - honest negative: the policies tuned on forecasts suffer most when demand jumps without warning
   (S2: normal 4,041 and quantile 2,075 vs 1,368 for weeks of cover), and the (R, S) quantile policy,
   best on stock in Phase 2, is only third on resilience
+- mitigation tested: an A-item buffer at the DC. A items = the top 20% of items by sales value
+  (demand x price over the 56 days before the replay). Their DC service rises from 95% to 99%
+  (z 1.65 -> 2.33); everything else unchanged. Tested with the (s, S) store policy, the most robust
+  in Part G, on S0, S1 and S3, 20 seeds each.
+- value of the buffer: yearly cost = the extra total cost (store + DC) it adds in S0, x 365 / 126;
+  damage avoided per disruption = the total cost it saves in that scenario + its S0 cost (i.e. the
+  reduction in the scenario's extra cost vs S0); break-even = yearly cost / damage avoided, the
+  number of such disruptions per year above which the buffer pays. A backup supplier was left as an
+  extension, because M5 has no purchase prices to cost it.
+- mitigation result (20 seeds, (s, S) at the store, total cost incl. DC holding over 126 days):
+  the buffer cuts lost sales in every scenario (S0 -66, S1 -193, S3 -66) but adds about 470-530
+  of DC holding, so it raises total cost everywhere (S0 23,889 -> 24,392; S1 23,905 -> 24,251;
+  S3 24,805 -> 25,309). Yearly cost of the buffer = 1,455. Damage avoided per 2-week supplier
+  outage = 156, so it only pays above 9.3 outages a year: not worth it. In the DC capacity cut it
+  avoids nothing (-2): the bottleneck is handling capacity, not stock, so more stock cannot help.
+  Conclusion: at these costs, the robust store policy ((s, S)) is the better insurance; extra DC
+  stock for A items would only make sense with a much higher lost-sales cost or very frequent
+  outages. Results in results/twin_mitigation.csv.

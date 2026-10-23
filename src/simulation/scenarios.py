@@ -58,7 +58,11 @@ def scenario_config(scenario: str, seed: int) -> NetworkConfig:
 
 
 def run_scenario(
-    policy: str, scenario: str, seed: int = 0, inputs: pd.DataFrame | None = None
+    policy: str,
+    scenario: str,
+    seed: int = 0,
+    inputs: pd.DataFrame | None = None,
+    dc_policy=dc_order_up_to,
 ) -> tuple[dict, Twin]:
     """Run the twin once and return its KPIs and the twin itself (for the daily records).
 
@@ -66,13 +70,14 @@ def run_scenario(
     scenario: a name from SCENARIOS, e.g. "S1 supplier outage".
     seed: sets the lead times on both legs and the disruption start; the same seed gives the
     same draws for every policy.
+    dc_policy: the DC ordering rule; by default dc_order_up_to at 95% service.
     """
     inputs = _inputs() if inputs is None else inputs
     config = scenario_config(scenario, seed)
     twin = Twin(
         inputs,
         store_policies()[policy],
-        dc_order_up_to,
+        dc_policy,
         draw_lead_times(inputs, seed=seed),
         config,
         seed=seed,

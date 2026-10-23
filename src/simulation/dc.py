@@ -13,10 +13,15 @@ def dc_mirror(twin, t: int) -> np.ndarray:
     return twin.store_order.copy()
 
 
-def dc_order_up_to(twin, t: int, service: float = 0.95) -> np.ndarray:
-    """Weekly (R, S) on the store's forecast: cover 14 days at `service`, minus the DC position."""
+def dc_order_up_to(
+    twin, t: int, service: float = 0.95, service_by_item: dict[str, float] | None = None
+) -> np.ndarray:
+    """Weekly (R, S) on the store's forecast: cover 14 days at `service`, minus the DC position.
+
+    service_by_item, if given, overrides `service` for the items it names (e.g. an A-item buffer).
+    """
     levels = np.zeros(len(twin.items))
-    for i in range(len(twin.items)):
+    for i, item in enumerate(twin.items):
         state = ReviewState(
             day=twin.dates[t],
             on_hand=0.0,
@@ -26,5 +31,6 @@ def dc_order_up_to(twin, t: int, service: float = 0.95) -> np.ndarray:
             price=twin.price[i, t],
             demand_class=twin.classes[i],
         )
-        levels[i] = quantile_level(state, service=service, protection=DC_PROTECTION)
+        item_service = (service_by_item or {}).get(item, service)
+        levels[i] = quantile_level(state, service=item_service, protection=DC_PROTECTION)
     return np.maximum(0.0, levels - twin.dc_position())
