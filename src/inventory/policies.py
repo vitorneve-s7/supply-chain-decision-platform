@@ -47,13 +47,15 @@ def order_up_to_quantile_sum(state: ReviewState) -> int:
 
 
 def quantile_level(
-    state: ReviewState, service: float = 0.95, z_by_class: dict[str, float] | None = None
+    state: ReviewState,
+    service: float = 0.95,
+    z_by_class: dict[str, float] | None = None,
+    protection: int = PROTECTION,
 ) -> float:
     """Stock that covers the protection period, with the spread read from the forecast quantiles.
-
     z_by_class, if given, replaces the z of `service` with one tuned per demand class.
     """
-    fc = state.forecast.head(PROTECTION)
+    fc = state.forecast.head(protection)
     sigma_t = (fc["q95"] - fc["q50"]) / norm.ppf(0.95)  # daily spread from the forecast
     mu = fc["q50"].mean()
     z = z_by_class[state.demand_class] if z_by_class else norm.ppf(service)

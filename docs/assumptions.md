@@ -196,3 +196,13 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   plus DC holding at the same 25% per year
 - speed: all 821 items; if one run takes over a minute, a sample of 200 items stratified by demand
   class is used for the scenario runs
+- DC policy as built: S = quantile_level of the store's Hybrid forecast over 14 days at 95% service
+  (the Phase 2 formula with protection = 14 and Var(L) = 2 for a uniform 5-9 day supplier lead
+  time); order = S - DC position (DC stock + on order from the supplier - still owed to the store)
+- S0 with the finite DC (seed 0, all 821 items), store fill rate / cycle service vs the Phase 2
+  replay: weeks of cover 95.7% / 90.6% (95.9% / 91.0%); (R, S) normal 90.1% / 84.6% (90.2% / 84.8%);
+  (R, S) quantile 96.9% / 94.8% (97.0% / 95.0%); (s, S) 98.3% / 97.7% (98.7% / 98.4%). The DC costs
+  each policy under 1 point of service. Item-days with the DC out of stock while owing the store:
+  1.7% / 2.4% / 7.8% / 17.2% for normal / quantile / weeks of cover / (s, S): the (s, S) batches catch
+  the DC short. Coefficient of variation of weekly orders, store -> DC: quantile 0.07 -> 0.14,
+  normal 0.15 -> 0.24, weeks of cover 0.16 -> 0.15, (s, S) 0.17 -> 0.27.

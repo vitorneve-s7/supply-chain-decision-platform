@@ -101,3 +101,17 @@ def test_unlimited_dc_matches_phase2_replay():
     twin_rec = twin.store_records()
     np.testing.assert_allclose(twin_rec["end_stock"], phase2["end_stock"])
     np.testing.assert_allclose(twin_rec["lost"], phase2["lost"])
+
+
+def test_dc_order_up_to_covers_14_days_minus_its_position():
+    from scipy.stats import norm
+
+    from src.simulation.dc import dc_order_up_to
+
+    # flat forecast of 5 a day with q95 = q50 (no daily spread): only lead-time risk remains
+    # level = 14 x 5 + 1.645 x sqrt(5**2 x 2) = 70 + 11.6 = 81.6 per item
+    inputs = make_inputs(n_items=2, demand=5.0)
+    twin = Twin(inputs, fixed(0), dc_order_up_to, make_leads(inputs, 3), NetworkConfig())
+    level = 70 + norm.ppf(0.95) * np.sqrt(25 * 2)
+    np.testing.assert_allclose(dc_order_up_to(twin, 0), level - twin.dc_position())
+    assert twin.dc_position() == pytest.approx([70.0, 70.0])  # starts with 14 days of 5
