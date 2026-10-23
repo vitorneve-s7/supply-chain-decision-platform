@@ -206,3 +206,9 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   1.7% / 2.4% / 7.8% / 17.2% for normal / quantile / weeks of cover / (s, S): the (s, S) batches catch
   the DC short. Coefficient of variation of weekly orders, store -> DC: quantile 0.07 -> 0.14,
   normal 0.15 -> 0.24, weeks of cover 0.16 -> 0.15, (s, S) 0.17 -> 0.27.
+- run_scenario(policy, scenario, seed): the seed sets the DC -> store lead times (draw_lead_times with
+  that seed), the supplier lead times and the disruption start day (uniform on replay days 35-91,
+  2016-02-08 to 2016-04-04), so one seed gives the same draws for every policy
+- single-run check (R, S) quantile, seed 0, disruption from day 83 (2016-03-27), weekly store fill
+  rate before -> worst week: S1 96.5% -> 88.0% (in week 3, once the DC runs dry); S2 96.5% -> 90.2%
+  (week 2); S3 96.5% -> 90.0% (week 4, while stock piles up in the DC); S4 96.5% -> 83.2% (week 2)
