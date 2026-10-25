@@ -265,3 +265,22 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   service, lost sales cost, total cost incl. DC holding, store and DC stock value, disruption start
   date); unknown names raise an error that lists the valid ones, so the Phase 4 agent can correct
   itself. One call runs all 821 items (about 10-20 s).
+
+## 11. LLM agent
+
+- provider: Anthropic API with the anthropic Python SDK, no agent framework, so every step of
+  the loop is visible
+- model: claude-haiku-5-5 for the app and the evaluation (about 20x cheaper than Sonnet 5.5, and
+  enough for simple tool choice since the code computes every number); one final evaluation run
+  with claude-sonnet-5-5 to compare score and cost; one setting in src/agent/config.py
+- tools (6): get_forecast, get_inventory_policy, compare_policies, run_scenario, find_items,
+  explain_assumption; precomputed results first, a live twin run only when asked
+- grounding rule: every number in an answer must appear in a tool result; checked by code after
+  each answer, with one retry if a number is unsupported
+- scope of answers: store CA_1, FOODS_3, the 821 backtested items, the forecast window 2016-05-23
+  to 2016-06-19 and the twin's 5 scenarios; outside that, the agent says it cannot answer
+- limits: at most 6 tool calls per question, max_tokens 1,024 per reply, a monthly spend limit
+  on the API key's workspace
+- secrets: ANTHROPIC_API_KEY in .env (git-ignored), loaded with python-dotenv; Streamlit secrets
+  when deployed
+- language: the agent answers in the language of the question

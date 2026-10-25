@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "anthropic>=2.3.0",
     "ipykernel>=7.4.0",
     "jupyter>=1.1.1",
     "lightgbm>=4.7.0",
@@ -17,9 +18,11 @@ dependencies = [
     "pandas>=3.0.6",
     "plotly>=7.1.0",
     "pyarrow>=26.0.0",
+    "python-dotenv>=1.2.4",
     "scikit-learn>=1.9.1",
     "simpy>=4.1.2",
     "statsforecast>=2.0.1",
+    "streamlit>=1.66.1",
     "utilsforecast>=0.2.17",
 ]
 
