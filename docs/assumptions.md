@@ -279,7 +279,8 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   each answer, with one retry if a number is unsupported
 - scope of answers: store CA_1, FOODS_3, the 821 backtested items, the forecast window 2016-05-23
   to 2016-06-19 and the twin's 5 scenarios; outside that, the agent says it cannot answer
-- limits: at most 6 tool calls per question, max_tokens 1,024 per reply, a monthly spend limit
+- limits: at most 6 tool calls per question, max_tokens 2,048 per reply (Haiku 5.5 thinks before
+  answering, and thinking counts toward it), a monthly spend limit
   on the API key's workspace
 - secrets: ANTHROPIC_API_KEY in .env (git-ignored), loaded with python-dotenv; Streamlit secrets
   when deployed
@@ -294,3 +295,10 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   demand, so single-item results are not the store totals. find_items ranks by the last 56 days.
   explain_assumption is a keyword search over the bullets of this file (plural s dropped, section
   name included, ties to the shorter bullet); no embeddings.
+- system prompt (src/agent/prompt.py): today = 2016-05-23; every number from a tool result, no
+  own calculations or extrapolations; say plainly when no tool covers a question; compare_policies
+  for store-level policy questions, run_scenario only for one item or one seed; European Portuguese
+  for questions in Portuguese (the toy answered in Brazilian Portuguese); brief, with units.
+- agent loop (src/agent/agent.py): no framework; the model's whole reply, thinking blocks included,
+  is sent back with the tool results; tool errors are flagged with is_error; past the 6th tool
+  call, further calls get an error asking the model to answer; follow-ups resend the history.
