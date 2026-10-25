@@ -271,8 +271,9 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - provider: Anthropic API with the anthropic Python SDK, no agent framework, so every step of
   the loop is visible
 - model: claude-haiku-5-5 for the app and the evaluation (about 20x cheaper than Sonnet 5.5, and
-  enough for simple tool choice since the code computes every number); one final evaluation run
-  with claude-sonnet-5-5 to compare score and cost; one setting in src/agent/config.py
+  enough for simple tool choice since the code computes every number); one setting in
+  src/agent/config.py. No Sonnet comparison run: with Haiku at 30 / 30 on the evaluation set, a
+  dearer model could not score higher on it
 - tools (6): get_forecast, get_inventory_policy, compare_policies, run_scenario, find_items,
   explain_assumption; precomputed results first, a live twin run only when asked
 - grounding rule: every number in an answer must appear in a tool result; checked by code after
@@ -329,3 +330,10 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   11k output tokens for all 30 (about 3 US cents). Limits: the questions were written by the
   developer of the tools, so they are in scope and unambiguous; the checks confirm numbers, names
   and tools, not the full reasoning (e.g. F5's "probably yes" for a median of 21.3 vs 20 units).
+- app (app/streamlit_app.py): the chat on the left; on the right, the result of the last tool
+  call: a fan chart for a forecast (median, 90th, band up to the 95th), bars with 95% intervals
+  for a policy comparison, metric tiles with the change vs normal for a live twin run, the stock
+  levels for a policy, a table for find_items and the matched passages for an assumption; the
+  Phase 3 chart before the first question. Each answer folds out the tools it used with their
+  full results and the tokens spent; an answer with unsupported numbers shows a warning. The API
+  key comes from .env locally and from Streamlit secrets when deployed.
