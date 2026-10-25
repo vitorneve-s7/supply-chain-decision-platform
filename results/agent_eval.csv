@@ -1,0 +1,93 @@
+id,type,tools_ok,numbers_ok,names_ok,grounded_ok,correct,retried,ungrounded,tools_called,expected,input_tokens,output_tokens,seconds,question,answer
+F1,forecast,True,True,True,True,True,False,,get_forecast,368.6,5446,231,2.8,How many units of FOODS_3_090 will sell next week?,FOODS_3_090 is forecast to sell about **369 units** in store CA_1 from 23 to 29 May 2016 (median forecast). There is a 95% chance that sales stay at or below about **580 units** over that week.
+F2,forecast,True,True,True,True,True,False,,get_forecast,607.2 795.7,5776,181,2.1,"Quanto vai vender o FOODS_3_120 nos próximos 14 dias, e qual o valor pessimista a 95%?","Para o FOODS_3_120 na loja CA_1, nos 14 dias de 23 de maio a 5 de junho de 2016:
+
+- **Previsão mediana (q50):** cerca de 607 unidades.
+- **Valor pessimista a 95% (q95):** cerca de 796 unidades."
+F3,forecast,True,True,True,True,True,False,,get_forecast,443.1,6302,153,1.7,What is the median demand forecast for FOODS_3_702 over the next 28 days?,The median (q50) demand forecast for FOODS_3_702 in store CA_1 over the 28 days from 2016-05-23 to 2016-06-19 is about **443 units**. The 95% upper total is about 532 units.
+F4,forecast,True,True,True,True,True,False,,get_forecast,49.31,5523,249,2.7,Qual é a previsão mediana do FOODS_3_252 para o dia 2016-05-28?,"A previsão mediana (q50) do FOODS_3_252 na loja CA_1 para 2016-05-28 é de **49,3 unidades**. O intervalo superior de 95% para esse dia é de cerca de 71,8 unidades."
+F5,forecast,True,True,True,True,True,False,,get_forecast,21.3,5743,380,2.9,Will FOODS_3_083 sell more than 20 units in the next 14 days?,"**Borderline.** The median forecast for FOODS_3_083 in CA_1 over the 14 days from 2016-05-23 to 2016-06-05 is **21.3 units**, just above your threshold of 20. The 95% upper figure is 31.1 units. The forecast gives only the median and upper quantiles, not the probability of exceeding 20, so I can't say more precisely how likely it is."
+F6,forecast,True,True,True,True,True,False,,find_items get_forecast,280.4,8375,366,3.6,How much will our top item by sales value sell next week?,"Your top item by sales value is **FOODS_3_120** (smooth demand). Over the last 56 days it sold 2,279 units, worth US$11,349.42.
+
+**Forecast for the next 7 days (23–29 May 2016), store CA_1:**
+- Median (q50): **about 280 units**
+- 95% upper bound: **about 401 units** for the week
+
+Demand is expected to be lower early in the week and rise toward the weekend, with the highest daily median on 29 May (about 65 units)."
+P1,policy,True,True,True,True,True,False,,get_inventory_policy,662,5271,200,1.8,"What order-up-to level does the (R, S) quantile policy set for FOODS_3_586?","The (R, S) quantile policy sets the order-up-to level for FOODS_3_586 at **662 units**, which is 17.8 days of demand and a stock value of $1,112.16 (price $1.68). This is a weekly review with a 12-day forecast horizon plus safety stock from the forecast quantiles (z = 3.11)."
+P2,policy,True,True,True,True,True,False,,get_inventory_policy,1263.3 321.7,5313,316,2.5,"Com a política (s, S), qual é o ponto de encomenda e o tamanho do lote do FOODS_3_090?","Na política (s, S) do FOODS_3_090, o ponto de encomenda (s) é de **1 263,3 unidades** e o tamanho do lote é de **321,7 unidades**.
+
+A regra é: na revisão semanal (23/05/2016), encomenda-se apenas quando o stock mais o que está em encomenda for igual ou inferior a s, e encomenda-se até ao nível S, que é de 1 585 unidades."
+P3,policy,True,True,True,True,True,False,,get_inventory_policy,25.5,5293,205,2.2,"How many days of demand does the (s, S) order-up-to level cover for FOODS_3_120?","The (s, S) order-up-to level for FOODS_3_120 covers **25.5 days of demand**.
+
+That is S = 989 units, at a forecast of about 38.8 units per day, for a stock value of about $4,925 (price $4.98). The reorder point s is 829.1 units, and the batch size is about 160 units. The review day is 2016-05-23."
+P4,policy,True,True,True,True,True,False,,get_inventory_policy,270,5274,242,2.4,Quanto vale em stock (USD) o nível S da política weeks of cover para o FOODS_3_463?,"O nível S da política *Weeks of cover* para o FOODS_3_463 vale **270,0 USD** em stock. Isto corresponde a 45 unidades, ou cerca de 23,1 dias de procura, com preço de 6,00 USD por unidade. A regra é repor até 3 × as vendas da última semana (15 unidades)."
+P5,policy,True,True,True,True,True,False,,get_inventory_policy get_inventory_policy,292 364,5590,561,3.4,"For FOODS_3_714, compare the order-up-to levels of (R, S) normal and (R, S) quantile.","For FOODS_3_714 (smooth demand, forecast 18.3 units/day, price $1.58), the (R, S) quantile policy sets a higher order-up-to level than (R, S) normal, as of the 2016-05-23 review:
+
+| Policy | Order-up-to level S | Days of demand | Stock value | Safety factor (z) |
+|---|---|---|---|---|
+| (R, S) normal | 292 units | 16.0 days | $461.36 | 1.645 |
+| (R, S) quantile | 364 units | 19.9 days | $575.12 | 3.11 |
+
+The normal policy uses safety stock from past sales. The quantile policy uses safety stock from forecast quantiles, with a higher z, which is why its level is larger."
+C1,comparison,True,True,True,True,True,False,,compare_policies,989,6039,276,3.1,"Which policy loses the least sales in a demand spike, and how much extra lost-sales cost does it have?","In a demand spike (S2: demand +50% for 10 days), the **(s, S)** policy loses the fewest sales. Its extra lost-sales cost versus normal conditions is **$989** (95% interval ±$97), over the 126 scored days. Its fill rate is 97.9%.
+
+For comparison, the other policies' extra lost-sales costs are:
+- Weeks of cover: $1,368 (±$106)
+- (R, S) quantile: $2,075 (±$92)
+- (R, S) normal: $4,041 (±$204)
+
+(s, S) also ranks first on total cost with DC holding ($24,619) and recovers in about 19.7 days."
+C2,comparison,True,True,True,True,True,False,,compare_policies,52214,6101,514,3.9,"Qual é a política mais cara quando os prazos de entrega duplicam, e quanto custa?","A política mais cara quando os prazos de entrega duplicam é **(R, S) normal**. Custa **52.214 USD** no total (com custo de armazenamento no DC), com um intervalo de ±232 USD. As perdas de vendas extra face ao cenário normal são de **8.162 USD**, e a taxa de preenchimento é de **86,2%**.
+
+Para comparação, a política **(s, S)** é a mais barata, com 25.290 USD (±95 USD) e 97,4% de taxa de preenchimento.
+
+Estes valores referem-se ao cenário S4 (prazo de entrega DC-loja duplicado durante 28 dias), no conjunto de 821 itens de FOODS_3 na loja CA_1, com 20 simulações por política e 126 dias avaliados."
+C3,comparison,True,True,True,True,True,False,,compare_policies,44.2,6026,236,2.0,"How many days does the (s, S) policy take to recover from a supplier outage?","The (s, S) policy takes about **44.2 days** to recover from a supplier outage (S1: supplier ships nothing for 14 days). The 95% interval is ±4.4 days. This is the store-level average across 821 items and 20 simulation runs.
+
+For comparison, Weeks of cover recovers in about 35.6 days, (R, S) quantile in 39.6 days and (R, S) normal in 31.9 days. Recovery time is only one measure, though: (s, S) ranks first on total cost and fill rate in this scenario."
+C4,comparison,True,True,True,True,True,False,,compare_policies,0.9619,6047,210,2.1,"What fill rate does the (R, S) quantile policy reach when the DC capacity is cut?","Under the DC capacity cut (S3), the (R, S) quantile policy reaches a fill rate of **0.9619 (about 96.2%)** across all 821 items, with a cycle service of 0.9304. This is the second-best fill rate of the four policies (rank 2); (s, S) is best at 0.9786.
+
+This is a store-level simulation result: 20 seeds, over the 126 scored days (2016-01-18 to 2016-05-22)."
+C5,comparison,True,True,True,True,True,False,,compare_policies,23889,6071,274,2.5,"Em condições normais, que política tem o custo total mais baixo, e qual é esse custo?","Em condições normais (cenário S0), a política **(s, S)** tem o custo total mais baixo: cerca de **23 889 USD** (intervalo de confiança de 95% de ±67 USD), no período de 126 dias simulados (2016-01-18 a 2016-05-22), incluindo a holding no DC.
+
+Para comparação, a segunda melhor é Weeks of cover, com 30 621 USD. Também é a política com maior taxa de preenchimento (0,983)."
+C6,comparison,True,True,True,True,True,True,,compare_policies,970 1258,10287,993,5.8,"In a supplier outage, is the difference in extra lost sales between weeks of cover and (s, S) significant?","No, the difference is not significant. In the supplier outage scenario, Weeks of cover has extra lost-sales cost of 970 USD (±227) and (s, S) has 1,258 USD (±314). The 95% intervals overlap, and the tool's rule is that differences within the intervals are not significant. Weeks of cover ranks 1st on extra lost sales and (s, S) ranks 3rd, but that ranking does not establish a real difference.
+
+Over the 126 scored days, (s, S) ranks 1st on total cost incl. DC holding (23,905 USD vs 30,541 USD) and on fill rate (0.977 vs 0.952)."
+L1,live scenario,True,True,True,True,True,False,,run_scenario,215.78,5508,359,4.5,"Run the longer lead times scenario for FOODS_3_090 with the (s, S) policy. What is the total cost?","Under the longer lead times scenario (S4), FOODS_3_090 with the (s, S) policy has a **total cost of 215.78 USD** over the 126 scored days (seed 0, disruption from 2016-03-27).
+
+- Fill rate and cycle service are both 1.0, with no lost-sales cost.
+- The normal run (S0) with the same seed costs 226.58 USD, so the scenario is 10.80 USD lower. This is a single seed, so I would not read it as a real saving from the longer lead times."
+L2,live scenario,True,True,True,True,True,False,,run_scenario,0.7755,5677,498,5.0,"Simula uma paragem do fornecedor para o FOODS_3_120 com a política (R, S) quantile, seed 3. Qual é a taxa de serviço (fill rate)?","Com a paragem do fornecedor (S1) para o FOODS_3_120, com a política (R, S) quantile e seed 3, a taxa de serviço (fill rate) é de **0,7755 (cerca de 77,6%)**.
+
+Em funcionamento normal, com a mesma seed, seria de 0,8192 (cerca de 81,9%). A paragem começou a 2016-03-25 e custou menos 4,37 pontos percentuais de fill rate. O custo de vendas perdidas foi mais 355,48 USD do que no cenário normal."
+L3,live scenario,True,True,True,True,True,False,,run_scenario,154.35,5650,560,4.8,What lost-sales cost does FOODS_3_702 have in a demand spike with weeks of cover?,"Para FOODS_3_702 com política de **weeks of cover** num pico de procura (S2, +50% durante 10 dias, seed 0), o custo de vendas perdidas é de **154,35 USD** nos 126 dias simulados (2016-01-18 a 2016-05-22).
+
+Em comparação com o cenário normal, o pico acrescenta **35,10 USD** de custo de vendas perdidas (119,25 USD no normal). O taxa de preenchimento desce de 0,8927 para 0,8654.
+
+Esta é uma única simulação para um item, com seed 0. Para o efeito no conjunto da loja e para comparar políticas, posso usar a comparação de políticas."
+L4,live scenario,True,True,True,True,True,False,,run_scenario,0.9453,5636,479,5.0,"Corre o cenário de corte de capacidade do DC para o FOODS_3_252 com (R, S) normal. Qual é a fill rate?","A fill rate do FOODS_3_252 com a política (R, S) normal, no cenário S3 (corte de capacidade do DC de -50% durante 21 dias, seed 0, início a 2016-03-27), é de **0,9453 (94,5%)**.
+
+Para comparação, no cenário normal (S0) a fill rate é de 0,9885 (98,9%), ou seja, a descida é de cerca de 4,3 pontos percentuais. O cycle service desce de 0,8333 para 0,7222."
+A1,assumptions,True,True,True,True,True,False,,explain_assumption,30,5419,259,2.8,Why is the lost-sales cost set at 30% of the price?,"The project documents set the lost-sales penalty at 30% of the item's price per unit not sold because of a stockout, and describe it as the lost margin. The documentation gives that as the reason and doesn't say how the 30% figure was chosen."
+A2,assumptions,True,True,True,True,True,False,,explain_assumption,25,5395,152,2.0,Qual é o custo de posse de stock (holding cost) assumido?,"O custo de posse assumido é de **25% do preço por ano**, cobrado diariamente sobre o stock existente no fim de cada dia (documentação, secção ""Inventory replay"")."
+A3,assumptions,True,True,True,True,True,False,,explain_assumption,5 9,5411,169,2.1,How long is the lead time from the supplier to the DC?,"The supplier-to-DC lead time in the digital twin is **5 to 9 days**, drawn uniformly. One draw applies to each weekly DC order (one truck for all items), and the draw depends on the run's seed."
+A4,assumptions,True,True,True,True,True,False,,explain_assumption,,5501,303,2.4,How was the Hybrid forecast model chosen?,"The Hybrid model was chosen on the validation windows only. It uses LightGBM for the point forecast on smooth and erratic items, and AutoETS for intermittent and lumpy items. Its q90 and q95 quantiles are the point forecast plus the calibrated AutoETS margin.
+
+On validation, the Hybrid scored an RMSSE of 0.734, against 0.743 for AutoETS alone and 0.745 for LightGBM alone. Its pinball q95 was 0.323, against 0.329 for AutoETS and 0.470 for LightGBM. Its 95% coverage was 0.903 for q90 and 0.952 for q95."
+O1,out of scope,True,True,True,True,True,False,,,,2489,202,1.6,What will store TX_2 sell next month?,"I can't answer that. My data covers only store CA_1, department FOODS_3, so I have no forecast for TX_2.
+
+For CA_1, I can give item-level demand forecasts for 2016-05-23 to 2016-06-19, which is the period the data covers. If you give me an item id such as FOODS_3_090, I'll forecast it. If you don't know the id, I can list the top sellers by units or sales value."
+O2,out of scope,True,True,True,True,True,False,,explain_assumption,,5533,496,3.9,Qual é o preço de compra do FOODS_3_090 ao fornecedor?,"Não tenho o preço de compra do FOODS_3_090 ao fornecedor. Os dados do projeto não incluem preços de compra: a documentação indica que o M5 não os tem. As ferramentas também não os devolvem.
+
+Posso ajudar com a previsão de procura do item (`get_forecast`), a política de stock, com o nível de encomenda S, o ponto de reposição s e o valor do stock (`get_inventory_policy`), ou com o custo de rutura e de armazenamento em termos gerais, que a documentação define como uma percentagem do preço do item. Se precisar do preço de compra, deverá obtê-lo junto do fornecedor ou do sistema de compras."
+O3,out of scope,True,True,True,True,True,False,,get_forecast,,6464,458,3.2,Forecast FOODS_3_090 for December 2016.,"I can't forecast December 2016. The demand forecasts only cover 2016-05-23 to 2016-06-19, which is 28 days after the data ends.
+
+For FOODS_3_090 in that window, the total median forecast (q50) is 1,580.5 units, and the 95% upper total is 2,178.8 units. The daily q50 runs from about 39 to 78 units. The highest days are 2016-06-04 (77.7 units) and 2016-06-12 (74.1 units).
+
+For a December forecast, you would need a model that projects that far ahead. Its results would also need to be checked against this data, since the data does not reach December."
+U1,follow-up,True,True,True,True,True,False,,,0.9773,9748,298,3.9,And what is its fill rate in that scenario?,"The fill rate for (s, S) in the S1 supplier outage scenario is **0.977** (97.7%), with a cycle service of 0.972."
+U2,follow-up,True,True,True,True,True,True,,get_forecast,789.7,16864,779,18.2,E para os próximos 14 dias?,"Para o FOODS_3_090 na loja CA_1, a previsão mediana para 23 de maio a 5 de junho de 2016 (14 dias) é de **789,7 unidades**. Com um nível de confiança de 95%, o total pode chegar às **1134,8 unidades**.
+
+As vendas diárias medianas mais altas previstas são de cerca de 78 unidades (4 de junho) e 76 unidades (5 de junho)."

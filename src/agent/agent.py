@@ -58,18 +58,20 @@ def ask(
     history: list | None = None,
     client=None,
     on_tool_call: Callable[[ToolCall], None] | None = None,
+    model: str = MODEL,
 ) -> Answer:
     """Answer one question, calling tools as the model asks, up to MAX_TOOL_CALLS of them.
 
     history: Answer.messages from the previous question, so follow-ups keep their context.
     on_tool_call: called after each tool runs (the chat prints it, the app shows it).
+    model: the Claude model; the evaluation passes another one to compare.
     """
     client = client or _client()
     messages = list(history or []) + [{"role": "user", "content": question}]
     answer = Answer(text="")
     for _ in range(MAX_TOOL_CALLS + 3):  # +3: the first request, a retry and the final answer
         response = client.messages.create(
-            model=MODEL,
+            model=model,
             max_tokens=MAX_TOKENS,
             system=SYSTEM_PROMPT,
             tools=TOOL_SCHEMAS,

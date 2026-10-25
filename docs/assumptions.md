@@ -312,3 +312,20 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   of cover the most expensive policy in S1 when it was third, so compare_policies now returns
   ranks per scenario (rank 1 = best) and the prompt tells the model to use them, never to rank
   numbers itself.
+- evaluation set (src/agent/eval_set.json): 30 questions written before any tuning and then
+  frozen, in English and Portuguese: 6 forecast, 5 inventory policy, 6 policy comparison, 4 live
+  scenario, 4 assumptions, 3 out of scope, 2 follow-ups; items cover all four demand classes.
+  Expected numbers are not typed in: each check names a tool, its inputs and a field, and the
+  scorer computes the value with the tools at run time. A question is correct when all four checks
+  pass: the expected tools were called (none, for an out-of-scope question about another store),
+  every expected number appears in the answer (within 1% or its written rounding; shares may be
+  written as %), every expected name or keyword appears (e.g. the winning policy), and the
+  grounding check found no unsupported number. Target: at least 24 of 30 (80%).
+- evaluation result (claude-haiku-5-5): first run 29 / 30; the one failure (U2) was the checker,
+  not the agent: "1 134,8" (a Portuguese space as thousands separator) was read as 1 and 134.8,
+  which also caused needless retries on three other Portuguese answers. After teaching the checker
+  space-separated thousands, the full re-run scored 30 / 30 (100%): every type 100%, 1-2 tool calls
+  per question, 2 answers corrected by the grounding retry (C6, U2), about 107 s and 190k input /
+  11k output tokens for all 30 (about 3 US cents). Limits: the questions were written by the
+  developer of the tools, so they are in scope and unambiguous; the checks confirm numbers, names
+  and tools, not the full reasoning (e.g. F5's "probably yes" for a median of 21.3 vs 20 units).

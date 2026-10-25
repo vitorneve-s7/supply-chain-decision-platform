@@ -19,7 +19,9 @@ RETRY = (
 )
 SMALL = 12  # counts like "4 policies" or "2 weeks" are not checked
 NAMES = re.compile(r"FOODS_\d+_\d+|\bS[0-4]\b|\bq(?:50|90|95)\b|\bCA_\d|\bTX_\d|\bWI_\d", re.I)
-NUMBER = re.compile(r"\d[\d.,]*")
+# A number, with thousands separated by "," "." or a space ("1 134,8" in Portuguese)
+NUMBER = re.compile(r"\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?:[.,]\d+)?|\d[\d.,]*")
+SPACES = re.compile(r"[ \u00a0\u202f]")
 THOUSANDS = re.compile(r"(\d[\d.,]*)\s*(k|mil|thousand)\b", re.I)  # "23.9k", "24 mil"
 
 
@@ -51,7 +53,7 @@ def _decimals(token: str) -> int:
 
 def numbers_in(text: str) -> list[str]:
     """Numbers written in a text, without those inside item ids and scenario names."""
-    return NUMBER.findall(NAMES.sub(" ", text))
+    return [SPACES.sub("", n) for n in NUMBER.findall(NAMES.sub(" ", text))]
 
 
 def _collect(obj, out: set[float]) -> None:

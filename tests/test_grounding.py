@@ -1,7 +1,7 @@
 import json
 
 from src.agent.agent import ask
-from src.agent.grounding import RETRY, ungrounded_numbers
+from src.agent.grounding import RETRY, numbers_in, ungrounded_numbers
 from tests.test_agent import FakeClient, text, tool_use
 
 
@@ -21,6 +21,12 @@ def test_rounded_and_reformatted_numbers_pass():
     messages = conversation({"s": 1263.3, "fill_rate": 0.9773, "cost": 23905.0, "change": -10.8})
     answer = "s = 1.263,3 (or 1,263); fill rate 97,7% (0.977); 23,905 USD, about 23.9k; −10,8 USD"
     assert ungrounded_numbers(answer, messages) == []
+
+
+def test_space_as_thousands_separator():
+    messages = conversation({"q95_total_units": 1134.8, "cost": 52214.0})
+    assert ungrounded_numbers("até 1 134,8 unidades; custo de 52 214 USD", messages) == []
+    assert numbers_in("de 23 a 29 de maio") == ["23", "29"]
 
 
 def test_ids_dates_and_small_counts_are_not_checked():
