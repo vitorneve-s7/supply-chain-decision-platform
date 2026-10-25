@@ -284,3 +284,13 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - secrets: ANTHROPIC_API_KEY in .env (git-ignored), loaded with python-dotenv; Streamlit secrets
   when deployed
 - language: the agent answers in the language of the question
+- tool details: prices and costs are in US dollars (M5 is Walmart US data). get_forecast's 95%
+  total = sum of q50 + sqrt(sum of (q95 - q50)^2), the Phase 2 rule that daily spreads add up like
+  variances (the sum of daily q95 would overstate it). get_inventory_policy evaluates each policy at
+  the review on 2016-05-23 (the first Monday after the data) with the future forecast, the last 56
+  days of sales and the last price, with nothing on hand or on order, so the order equals S.
+  run_scenario returns the scenario run next to the S0 run with the same seed; with an item it
+  simulates that item alone (about 1 s per run), with DC and supplier capacities scaled to its
+  demand, so single-item results are not the store totals. find_items ranks by the last 56 days.
+  explain_assumption is a keyword search over the bullets of this file (plural s dropped, section
+  name included, ties to the shorter bullet); no embeddings.

@@ -3,11 +3,15 @@
 import pandas as pd
 
 from src.simulation.run_twin import dc_kpis
-from src.simulation.scenarios import SCENARIOS, run_scenario, store_policies
+from src.simulation.scenarios import SCENARIOS, _inputs, run_scenario, store_policies
 
 
 def simulate_scenario(
-    policy: str, scenario: str, seed: int = 0, inputs: pd.DataFrame | None = None
+    policy: str,
+    scenario: str,
+    seed: int = 0,
+    inputs: pd.DataFrame | None = None,
+    item: str | None = None,
 ) -> dict:
     """Run the supply chain digital twin once and return its headline KPIs.
 
@@ -17,6 +21,8 @@ def simulate_scenario(
         10 days), "S3 DC capacity cut" (-50%, 21 days), "S4 longer lead times" (x2, 28 days).
     seed: 0-19; sets the lead times and the disruption start, the same for every policy.
     inputs: only for tests; by default all 821 items.
+    item: run the network for this one item only, e.g. "FOODS_3_090" (about 1 s instead of
+        20 s); the DC and supplier capacities then scale with that item's demand.
 
     Returns plain numbers over the 126 scored days (2016-01-18 to 2016-05-22): fill rate and
     cycle service (0-1), lost sales cost, total cost including DC holding, average store and DC
@@ -26,10 +32,16 @@ def simulate_scenario(
         raise ValueError(f"Unknown policy {policy!r}; choose from {list(store_policies())}")
     if scenario not in SCENARIOS:
         raise ValueError(f"Unknown scenario {scenario!r}; choose from {list(SCENARIOS)}")
+    if item is not None:
+        inputs = _inputs() if inputs is None else inputs
+        inputs = inputs[inputs["unique_id"] == f"{item}_CA_1"]
+        if inputs.empty:
+            raise ValueError(f"Item {item!r} is not in the twin (the 821 backtested items)")
     kpis, twin = run_scenario(policy, scenario, seed, inputs=inputs)
     dc = dc_kpis(twin.dc_records(), twin.store_records())
     start = kpis["start_day"]
     return {
+        "item": item or "all 821 items",
         "policy": policy,
         "scenario": scenario,
         "seed": seed,
