@@ -156,10 +156,22 @@ def compare_policies(scenario: str = "all") -> dict:
     summary = pd.read_csv(RESULTS / "twin_summary.csv")
     if scenario != "all":
         summary = summary[summary["scenario"] == scenario]
+    # Ranks within each scenario (1 = best), so the model never has to compare numbers itself
+    by_scenario = summary.groupby("scenario")
+    summary = summary.assign(
+        rank_total_cost=by_scenario["total_cost_with_dc"].rank(method="min"),
+        rank_extra_lost_sales=by_scenario["extra_lost_cost"].rank(method="min"),
+        rank_fill_rate=by_scenario["fill_rate"].rank(method="min", ascending=False),
+    )
     rows = [
         {
             "policy": r.policy,
             "scenario": r.scenario,
+            "rank_total_cost": int(r.rank_total_cost),
+            "rank_extra_lost_sales": int(r.rank_extra_lost_sales)
+            if r.scenario != "S0 normal"
+            else None,
+            "rank_fill_rate": int(r.rank_fill_rate),
             "fill_rate": _r(r.fill_rate, 4),
             "cycle_service": _r(r.cycle_service, 4),
             "extra_lost_sales_cost_usd": _r(r.extra_lost_cost, 0),
@@ -173,7 +185,11 @@ def compare_policies(scenario: str = "all") -> dict:
     ]
     return {
         "source": "digital twin, 821 items, 20 seeds per policy and scenario, 126 scored days",
-        "notes": "extra = vs the normal run with the same seed; ci = 95% interval half-width",
+        "notes": (
+            "extra = vs the normal run with the same seed; ci = 95% interval half-width; "
+            "rank 1 = best in that scenario (lowest cost or lost sales, highest fill rate); "
+            "differences within the intervals are not significant"
+        ),
         "rows": rows,
     }
 

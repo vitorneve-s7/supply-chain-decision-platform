@@ -78,3 +78,11 @@ def test_run_scenario_on_one_item_compares_with_normal():
 def test_bad_inputs_come_back_as_errors(name, inputs):
     out = tools.run_tool(name, inputs)
     assert "error" in out
+
+
+def test_compare_policies_ranks_within_each_scenario():
+    rows = tools.compare_policies("S1 supplier outage")["rows"]
+    by_cost = sorted(rows, key=lambda r: r["total_cost_with_dc_usd"])
+    assert [r["rank_total_cost"] for r in by_cost] == [1, 2, 3, 4]
+    least_lost = min(rows, key=lambda r: r["extra_lost_sales_cost_usd"])
+    assert least_lost["rank_extra_lost_sales"] == 1

@@ -22,6 +22,10 @@ def main() -> None:
             break
         answer = ask(question, history, on_tool_call=show)
         print(f"\n{answer.text}")
+        if answer.ungrounded:
+            print(f"\n  WARNING: numbers no tool supports: {', '.join(answer.ungrounded)}")
+        elif answer.retried:
+            print("\n  (the first answer had an unsupported number and was corrected)")
         tokens = f"{answer.input_tokens} in / {answer.output_tokens} out tokens"
         print(f"\n  ({len(answer.tool_calls)} tool calls, {tokens})")
         history = answer.messages

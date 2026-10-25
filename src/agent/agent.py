@@ -14,6 +14,7 @@ import anthropic
 from dotenv import load_dotenv
 
 from src.agent.config import MAX_TOKENS, MAX_TOOL_CALLS, MODEL
+from src.agent.grounding import RETRY, ungrounded_numbers
 from src.agent.prompt import SYSTEM_PROMPT
 from src.agent.schemas import TOOL_SCHEMAS
 from src.agent.tools import run_tool
@@ -37,6 +38,8 @@ class Answer:
     input_tokens: int = 0
     output_tokens: int = 0
     stopped_early: bool = False  # True if the loop hit its limit or the reply was cut off
+    ungrounded: list[str] = field(default_factory=list)  # numbers no tool supports, after retry
+    retried: bool = False  # True if the first answer had ungrounded numbers
 
 
 @lru_cache(maxsize=1)
@@ -64,7 +67,7 @@ def ask(
     client = client or _client()
     messages = list(history or []) + [{"role": "user", "content": question}]
     answer = Answer(text="")
-    for _ in range(MAX_TOOL_CALLS + 2):  # +2: the first request and the final answer
+    for _ in range(MAX_TOOL_CALLS + 3):  # +3: the first request, a retry and the final answer
         response = client.messages.create(
             model=MODEL,
             max_tokens=MAX_TOKENS,
@@ -78,7 +81,14 @@ def ask(
         messages.append({"role": "assistant", "content": response.content})
 
         if response.stop_reason != "tool_use":
-            answer.text = _text(response)
+            text = _text(response)
+            bad = ungrounded_numbers(text, messages)
+            if bad and not answer.retried:  # one second chance, then answer with a warning
+                answer.retried = True
+                messages.append({"role": "user", "content": RETRY.format(", ".join(bad))})
+                continue
+            answer.text = text
+            answer.ungrounded = bad
             answer.stopped_early = response.stop_reason == "max_tokens"
             answer.messages = messages
             return answer

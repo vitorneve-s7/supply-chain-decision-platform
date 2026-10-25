@@ -302,3 +302,13 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
 - agent loop (src/agent/agent.py): no framework; the model's whole reply, thinking blocks included,
   is sent back with the tool results; tool errors are flagged with is_error; past the 6th tool
   call, further calls get an error asking the model to answer; follow-ups resend the history.
+- grounding check (src/agent/grounding.py): after each answer, every number in its text must
+  match, after rounding to the precision written, a number in a tool result, a user question, the
+  system prompt or a tool description (documented facts); shares may be written as percentages;
+  English and Portuguese number formats and "k"/"mil" are read; item ids, scenario names and
+  integers up to 12 are not checked. If a number fails, the model gets one retry with the list of
+  unsupported numbers; if it still fails, the answer is shown with a warning. Limit: it checks
+  numbers, not claims. In the first chat test every number was right, but the model called weeks
+  of cover the most expensive policy in S1 when it was third, so compare_policies now returns
+  ranks per scenario (rank 1 = best) and the prompt tells the model to use them, never to rank
+  numbers itself.
