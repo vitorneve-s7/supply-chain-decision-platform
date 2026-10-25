@@ -337,3 +337,8 @@ Decisions that the M5 dataset does not provide. Every phase uses these values.
   Phase 3 chart before the first question. Each answer folds out the tools it used with their
   full results and the tokens spent; an answer with unsupported numbers shows a warning. The API
   key comes from .env locally and from Streamlit secrets when deployed.
+- honest negative found in the app, not in the evaluation set: asked which policy loses the least
+  sales in S1, the agent said weeks of cover had "the lowest fill rate of the four policies
+  (0.9523)", when it ranks third ((R, S) normal is lowest at 0.8942). The number passed the
+  grounding check; the comparison was wrong despite the rank fields and prompt rule 6. Next step:
+  check ranking words (lowest, highest, best, worst) against the tools' rank fields.

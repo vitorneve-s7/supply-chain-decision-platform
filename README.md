@@ -1,7 +1,8 @@
 # Supply Chain Decision Platform
 
 Forecast-driven inventory decisions for 821 Walmart food items, from daily demand forecasts to
-weekly orders, tested in a day-by-day replay of 2016.
+weekly orders, stress-tested in a digital twin, and explained by an LLM agent that answers
+planner questions with the project's own numbers.
 
 **Results so far**
 
@@ -11,8 +12,11 @@ weekly orders, tested in a day-by-day replay of 2016.
   **27% lower total cost** with a forecast-based (s, S) policy.
 - **Digital twin:** across five disruptions in a supplier → DC → store network, the (s, S) policy
   loses the least sales in three of them and is the cheapest in all five.
+- **LLM agent:** answers planner questions in English or Portuguese by calling the project's
+  code; **30 of 30 correct** on an evaluation set, with every number checked against a tool result.
 
-Built with Python, pandas, statsforecast, LightGBM (mlforecast), SciPy, SimPy and pytest, on the
+Built with Python, pandas, statsforecast, LightGBM (mlforecast), SciPy, SimPy, the Anthropic API (Claude Haiku
+5.5), Streamlit, Plotly and pytest, on the
 [M5 dataset](https://www.kaggle.com/competitions/m5-forecasting-accuracy).
 
 ## Status
@@ -21,12 +25,61 @@ Built with Python, pandas, statsforecast, LightGBM (mlforecast), SciPy, SimPy an
 - [x] Phase 1 – Demand forecasting
 - [x] Phase 2 – Inventory policies
 - [x] Phase 3 – Digital twin
-- [ ] Phase 4 – LLM agent
+- [x] Phase 4 – LLM agent
 
 ## Scope
 
 Store CA_1, department FOODS_3: 823 items, daily sales from 2011-01-29 to 2016-05-22.
 All assumptions are in [docs/assumptions.md](docs/assumptions.md).
+
+## Phase 4 results: LLM agent
+
+A planner asks in plain language, in English or Portuguese. A Claude Haiku 5.5 agent answers by
+calling six tools built on Phases 1–3, and code checks that every number in the answer came from
+a tool.
+
+![The app: the chat on the left, the numbers behind the answer on the right](docs/app_screenshot.png)
+
+| Question type | Example | Correct |
+| --- | --- | --- |
+| Forecast | "How much will FOODS_3_090 sell next week?" | 6 / 6 |
+| Inventory policy | "What order-up-to level does the (R, S) quantile policy set for FOODS_3_586?" | 5 / 5 |
+| Policy comparison | "Which policy loses the least sales in a demand spike?" | 6 / 6 |
+| Live twin run | "Run the longer lead times scenario for FOODS_3_090 with (s, S)." | 4 / 4 |
+| Assumptions | "Why is the lost-sales cost set at 30% of the price?" | 4 / 4 |
+| Out of scope | "What will store TX_2 sell next month?" | 3 / 3 |
+| Follow-up | "E para os próximos 14 dias?" (after a forecast) | 2 / 2 |
+| **All** | | **30 / 30** |
+
+A question counts as correct only if the agent called the right tools, every expected number and
+name is in the answer, and no number in it lacks a source. Expected values are computed by the
+tools at run time, not typed in. A full run takes about 2 minutes and costs about 3 US cents.
+
+**How it works**
+
+- Six tools: forecast, inventory policy, policy comparison (precomputed 20-run twin results), a
+  live twin run, item search and a search over the documented assumptions. They are plain
+  functions, tested without the API.
+- A hand-written tool-use loop, no framework: the model picks tools and phrases the answer; the
+  code does every calculation, including totals, changes against normal and rankings.
+- A grounding check reads every number in the answer (English and Portuguese formats) and looks
+  for it in the tool results; if one is missing, the model gets one retry.
+
+**What I learned**
+
+- Let the code do the arithmetic. In the first test the model invented "20 to 31 June", and later
+  ranked costs wrongly; returning totals, differences and ranks from the tools removed both.
+- The first evaluation failure was the checker, not the agent: "1 134,8", with a Portuguese space
+  as thousands separator, was read as two numbers.
+- Honest negative: the check verifies numbers, not claims. In the app the agent called weeks of
+  cover's 95.2% fill rate in a supplier outage "the lowest of the four", when (R, S) normal's
+  89.4% is lower. The number was right, the comparison was not, and the evaluation set, written
+  by the author of the tools, did not catch it. Checking ranking words against the tools' rank
+  fields is the next step.
+- A cheap model is enough when the tools do the work: Haiku 5.5 scored 30 / 30, so a dearer model
+  had nothing left to gain on this set.
+
+Full analysis: [notebooks/05_agent.ipynb](notebooks/05_agent.ipynb)
 
 ## Phase 3 results: digital twin
 
@@ -168,4 +221,10 @@ forecast("FOODS_3_090", "CA_1", horizon=7)  # date, q50, q90, q95
    uv run python -m src.simulation.run_twin
    uv run python -m src.simulation.mitigation
 ```
-8. Run the tests with `uv run pytest`.
+8. LLM agent: put an Anthropic API key in `.env` as `ANTHROPIC_API_KEY=...`, then
+```
+   uv run python -m src.agent.chat
+   uv run python -m src.agent.run_eval
+   uv run streamlit run app/streamlit_app.py
+```
+9. Run the tests with `uv run pytest` (no test calls the API).
